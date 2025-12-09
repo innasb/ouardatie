@@ -9,7 +9,7 @@ type Category = Database['public']['Tables']['categories']['Row'];
 const translations = {
   en: {
     hero: {
-      title: 'Comfortably\nBeautiful ✨',
+      title: 'Comfortably\nBeautiful  ',
       subtitle:
         'Like flowers in bloom, OUARDATIE brings natural elegance to your everyday style',
       cta: 'Bloom With Us',
@@ -37,7 +37,7 @@ const translations = {
   },
   fr: {
     hero: {
-      title: 'Confortablement\nBelle ✨',
+      title: 'Confortablement\nBelle  ',
       subtitle:
         'Comme des fleurs en floraison, OUARDATIE apporte une élégance naturelle à votre style quotidien',
       cta: 'Fleurissez Avec Nous',
@@ -65,7 +65,7 @@ const translations = {
   },
   ar: {
     hero: {
-      title: 'جمال\nبراحة ✨',
+      title: 'جمال\nبراحة  ',
       subtitle:
         'مثل الورود المتفتحة، ورداتي تضيف لمسة من الأناقة الطبيعية لإطلالتك اليومية',
       cta: 'تسوقي معنا',
