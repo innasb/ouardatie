@@ -1,5 +1,4 @@
-// App.tsx
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { CartProvider } from './contexts/CartContext';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Navbar from './components/Navbar';
@@ -15,35 +14,52 @@ import AdminProducts from './pages/admin/AdminProducts';
 import AdminOrders from './pages/admin/AdminOrders';
 import AdminShipping from './pages/admin/AdminShipping';
 
-function AppContent() {
-  const { user, loading } = useAuth();
-  const [currentPage, setCurrentPage] = useState('home');
-  const [selectedProductId, setSelectedProductId] = useState<string>('');
-  const [selectedCategoryId, setSelectedCategoryId] = useState<string>('');
-  const [adminSection, setAdminSection] = useState('dashboard');
-  const [language, setLanguage] = useState<'en' | 'fr' | 'ar'>('en');
+// Custom routing hook
+function useRouter() {
+  const [route, setRoute] = useState(() => {
+    const path = window.location.pathname;
+    return path === '/' ? '/home' : path;
+  });
 
-  const handleNavigate = (page: string, id?: string) => {
-    setCurrentPage(page);
-    
-    if (page === 'product' && id) {
-      setSelectedProductId(id);
-    } else if (page === 'shop' && id) {
-      setSelectedCategoryId(id);
-    } else if (page === 'shop' && !id) {
-      // Clear category filter when navigating to shop without a category
-      setSelectedCategoryId('');
-    }
-    
+  useEffect(() => {
+    const handlePopState = () => {
+      const path = window.location.pathname;
+      setRoute(path === '/' ? '/home' : path);
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  const navigate = (path: string) => {
+    window.history.pushState({}, '', path);
+    setRoute(path);
     window.scrollTo(0, 0);
   };
 
-  const handleAdminNavigate = (section: string) => {
-    setAdminSection(section);
-  };
+  return { route, navigate };
+}
 
-  const handleLanguageChange = (lang: 'en' | 'fr' | 'ar') => {
-    setLanguage(lang);
+function AppContent() {
+  const { user, loading } = useAuth();
+  const { route, navigate } = useRouter();
+  const [language, setLanguage] = useState<'en' | 'fr' | 'ar'>('en');
+
+  // Parse the route
+  const pathSegments = route.split('/').filter(Boolean);
+  const page = pathSegments[0] || 'home';
+  const subPath = pathSegments[1] || '';
+  const id = pathSegments[2] || pathSegments[1] || '';
+
+  // Navigation helper that matches the old onNavigate signature
+  const handleNavigate = (targetPage: string, targetId?: string) => {
+    if (targetPage === 'product' && targetId) {
+      navigate(`/product/${targetId}`);
+    } else if (targetPage === 'shop' && targetId) {
+      navigate(`/shop/category/${targetId}`);
+    } else {
+      navigate(`/${targetPage}`);
+    }
   };
 
   if (loading) {
@@ -54,54 +70,79 @@ function AppContent() {
     );
   }
 
-  if (currentPage === 'admin') {
-    if (!user) {
-      return <AdminLoginPage onLoginSuccess={() => handleNavigate('admin')} />;
+  // Admin routes
+  if (page === 'admin') {
+    if (!user && subPath !== 'login') {
+      return <AdminLoginPage onLoginSuccess={() => navigate('/admin')} />;
     }
 
-    if (adminSection === 'dashboard') {
-      return <AdminDashboard onNavigate={handleAdminNavigate} />;
-    } else if (adminSection === 'products') {
-      return <AdminProducts onNavigate={handleAdminNavigate} />;
-    } else if (adminSection === 'orders') {
-      return <AdminOrders onNavigate={handleAdminNavigate} />;
-    } else if (adminSection === 'shipping') {
-      return <AdminShipping onNavigate={handleAdminNavigate} />;
+    if (subPath === 'login') {
+      return <AdminLoginPage onLoginSuccess={() => navigate('/admin')} />;
     }
+
+    if (subPath === 'products') {
+      return <AdminProducts onNavigate={(section) => navigate(`/admin/${section}`)} />;
+    }
+
+    if (subPath === 'orders') {
+      return <AdminOrders onNavigate={(section) => navigate(`/admin/${section}`)} />;
+    }
+
+    if (subPath === 'shipping') {
+      return <AdminShipping onNavigate={(section) => navigate(`/admin/${section}`)} />;
+    }
+
+    return <AdminDashboard onNavigate={(section) => navigate(`/admin/${section}`)} />;
   }
 
+  // Public routes with Navbar
   return (
     <>
       <Navbar
-        currentPage={currentPage}
-        onNavigate={handleNavigate}
+        currentPage={page}
+        onNavigate={(targetPage) => navigate(`/${targetPage}`)}
         language={language}
-        onLanguageChange={handleLanguageChange}
+        onLanguageChange={setLanguage}
       />
-      {currentPage === 'home' && (
-        <HomePage onNavigate={handleNavigate} language={language} />
-      )}
-      {currentPage === 'shop' && (
-        <ShopPage 
-          onNavigate={handleNavigate} 
-          language={language}
-          initialCategoryId={selectedCategoryId || undefined}
+
+      {page === 'home' && (
+        <HomePage 
+          onNavigate={handleNavigate}
+          language={language} 
         />
       )}
-      {currentPage === 'product' && (
+
+      {page === 'shop' && (
+        <ShopPage
+          onNavigate={handleNavigate}
+          language={language}
+          initialCategoryId={subPath === 'category' ? id : undefined}
+        />
+      )}
+
+      {page === 'product' && (
         <ProductDetailPage
-          productId={selectedProductId}
+          productId={subPath || id}
           onNavigate={handleNavigate}
           language={language}
         />
       )}
-      {currentPage === 'cart' && (
-        <CartPage onNavigate={handleNavigate} language={language} />
+
+      {page === 'cart' && (
+        <CartPage 
+          onNavigate={handleNavigate}
+          language={language} 
+        />
       )}
-      {currentPage === 'checkout' && (
-        <CheckoutPage onNavigate={handleNavigate} language={language} />
+
+      {page === 'checkout' && (
+        <CheckoutPage 
+          onNavigate={handleNavigate}
+          language={language} 
+        />
       )}
-      {currentPage === 'about' && <AboutPage language={language} />}
+
+      {page === 'about' && <AboutPage language={language} />}
     </>
   );
 }
