@@ -716,7 +716,7 @@ export default function AdminProducts({ onNavigate }: AdminProductsProps) {
                       onKeyDown={(e) => {
                         if (e.key === ' ' || e.key === ',') {
                           e.preventDefault();
-                          const newSize = sizeInput.trim();
+                          const newSize = sizeInput.trim().toUpperCase();
                           if (newSize && !formData.available_sizes.includes(newSize)) {
                             setFormData({
                               ...formData,
@@ -727,7 +727,7 @@ export default function AdminProducts({ onNavigate }: AdminProductsProps) {
                         }
                         if (e.key === 'Enter') {
                           e.preventDefault();
-                          const newSize = sizeInput.trim();
+                          const newSize = sizeInput.trim().toUpperCase();
                           if (newSize && !formData.available_sizes.includes(newSize)) {
                             setFormData({
                               ...formData,
