@@ -259,11 +259,96 @@ export default function CheckoutPage({
         color: item.color,
       }));
 
-      const { error: itemsError } = await supabase
+const { error: itemsError } = await supabase
         .from('order_items')
         .insert(orderItems);
 
       if (itemsError) throw itemsError;
+
+      // Decrement stock for each item
+      for (const item of items) {
+        // Fetch the current product to get its stock_variants
+        const { data: product, error: fetchError } = await supabase
+          .from('products')
+          .select('stock_variants, stock_quantity, available_colors')
+          .eq('id', item.productId)
+          .single();
+
+        if (fetchError) {
+          console.error('Error fetching product:', fetchError);
+          continue;
+        }
+
+        if (product && product.stock_variants && product.stock_variants.length > 0) {
+          // Parse stock variants
+          const parsedVariants = product.stock_variants.map((variant: string | any) => {
+            try {
+              if (typeof variant === 'object' && variant !== null && 'quantity' in variant) {
+                return variant;
+              }
+              return JSON.parse(variant);
+            } catch (e) {
+              console.error('Error parsing variant:', variant, e);
+              return null;
+            }
+          }).filter((v: any) => v !== null);
+
+          // Parse color options to find the hex value for the item's color name
+          const parsedColors = (product.available_colors || []).map((colorStr: string | any) => {
+            try {
+              if (typeof colorStr === 'object' && colorStr !== null && colorStr.hex && colorStr.name) {
+                return colorStr;
+              }
+              return JSON.parse(colorStr);
+            } catch (e) {
+              return null;
+            }
+          }).filter((c: any) => c !== null);
+
+          // Find the hex value for the item's color name
+          const colorHex = parsedColors.find((c: any) => c.name === item.color)?.hex;
+
+          // Find and update the matching variant
+          const updatedVariants = parsedVariants.map((variant: any) => {
+            // Match by colorHex and size
+            if (colorHex && variant.colorHex === colorHex && variant.size === item.size) {
+              return {
+                ...variant,
+                quantity: Math.max(0, variant.quantity - item.quantity)
+              };
+            }
+            // Fallback: match by color name and size
+            if (variant.color === item.color && variant.size === item.size) {
+              return {
+                ...variant,
+                quantity: Math.max(0, variant.quantity - item.quantity)
+              };
+            }
+            return variant;
+          });
+
+          // Update the product with new stock variants
+          const { error: updateError } = await supabase
+            .from('products')
+            .update({ stock_variants: updatedVariants })
+            .eq('id', item.productId);
+
+          if (updateError) {
+            console.error('Error updating stock:', updateError);
+          }
+        } else {
+          // No variants system, decrement general stock_quantity
+          const newQuantity = Math.max(0, (product?.stock_quantity || 0) - item.quantity);
+          const { error: updateError } = await supabase
+            .from('products')
+            .update({ stock_quantity: newQuantity })
+            .eq('id', item.productId);
+
+          if (updateError) {
+            console.error('Error updating stock:', updateError);
+          }
+        }
+      }
 
       clearCart();
       setOrderId(order.id);
