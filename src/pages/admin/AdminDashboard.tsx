@@ -201,10 +201,10 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
       supabase.from('products').select('id', { count: 'exact' }),
     ]);
 
-    if (ordersRes.data) {
+  if (ordersRes.data) {
       const orders = ordersRes.data;
       const totalRevenue = orders
-        .filter((o) => o.status !== 'canceled')
+        .filter((o) => o.status === 'delivered')
         .reduce((sum, o) => sum + o.total_amount, 0);
 
       const ordersByStatus = {
