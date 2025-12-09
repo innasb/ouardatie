@@ -546,15 +546,16 @@ export default function HomePage({
             </div>
           </div>
 
-          <div className="border-t border-gray-200 pt-6 flex flex-col md:flex-row justify-between items-center text-xs text-gray-600 gap-4 font-light">
-            <p>{t.footer.rights}</p>
-            <button
-              onClick={() => onNavigate('admin')}
-              className="text-gray-400 hover:text-[#8B7355] transition-colors"
-            >
-              {t.footer.admin}
-            </button>
-          </div>
+<div className="border-t border-gray-200 pt-6 flex flex-col md:flex-row justify-center items-center text-xs text-gray-600 gap-4 font-light">
+  <p>{t.footer.rights}</p>
+  {/* <button
+    onClick={() => onNavigate('admin')}
+    className="text-gray-400 hover:text-[#8B7355] transition-colors"
+  >
+    {t.footer.admin}
+  </button> */}
+</div>
+
         </div>
       </footer>
     </div>
