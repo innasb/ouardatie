@@ -3,5 +3,11 @@
   publish = "dist"
 
 [build.environment]
-NODE_VERSION = "20"
-SECRETS_SCAN_OMIT_KEYS = "VITE_SUPABASE_ANON_KEY,VITE_SUPABASE_URL"
+  NODE_VERSION = "20"
+  SECRETS_SCAN_OMIT_KEYS = "VITE_SUPABASE_ANON_KEY,VITE_SUPABASE_URL"
+
+# SPA redirect rule to make client-side routes work
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
