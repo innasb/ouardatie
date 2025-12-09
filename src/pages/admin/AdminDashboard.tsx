@@ -152,9 +152,9 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const t = (key: string): string => {
-    return allTranslations[language][key] || key;
+    const translations = allTranslations[language] as Record<string, string>;
+    return translations[key] || key;
   };
-
   const changeLanguage = (newLang: Language) => {
     if (newLang === language) return;
     setIsTransitioning(true);
@@ -809,40 +809,48 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
               <span className="text-2xl">📊</span>
               {t('dailyOrders.title')}
             </h2>
-            {stats.revenueData.length > 0 ? (
-              <div className="flex items-end justify-between h-64 gap-3 px-2">
-                {stats.revenueData.map((item, i) => {
-                  const maxOrders = Math.max(
-                    ...stats.revenueData.map((d) => d.orders),
-                    1
-                  );
-                  const height = Math.max((item.orders / maxOrders) * 100, 5);
-                  return (
-                    <div
-                      key={i}
-                      className="flex-1 flex flex-col items-center gap-3 group"
-                      style={{
-                        animation: `growUp 0.8s ease-out ${i * 0.1}s both`,
-                      }}
-                    >
-                      <div className="w-full flex flex-col items-center justify-end h-full relative">
-                        <span className="text-sm font-bold text-gray-800 mb-2 opacity-0 group-hover:opacity-100 group-hover:-translate-y-1 transition-all duration-300 absolute -top-8">
-                          {item.orders.toLocaleString(language)}
-                        </span>
-                        <div
-                          className="w-full bg-gradient-to-t from-blue-600 via-blue-500 to-blue-400 rounded-t-xl transition-all duration-700 hover:from-blue-700 hover:via-blue-600 hover:to-blue-500 relative overflow-hidden shadow-xl group-hover:shadow-2xl"
-                          style={{ height: `${height}%` }}
-                        >
-                          <div className="absolute inset-0 bg-gradient-to-t from-transparent via-white/20 to-white/30"></div>
-                          <div className="absolute inset-0 bg-white/20 animate-pulse"></div>
+           {stats.revenueData.length > 0 ? (
+              <div className="space-y-4">
+                <div className="flex items-end justify-between gap-3 px-2" style={{ height: '240px' }}>
+                  {stats.revenueData.map((item, i) => {
+                    const maxOrders = Math.max(
+                      ...stats.revenueData.map((d) => d.orders),
+                      1
+                    );
+                    const height = Math.max((item.orders / maxOrders) * 100, 5);
+                    return (
+                      <div
+                        key={i}
+                        className="flex-1 flex flex-col items-center justify-end group"
+                        style={{
+                          animation: `growUp 0.8s ease-out ${i * 0.1}s both`,
+                          height: '100%'
+                        }}
+                      >
+                        <div className="relative w-full flex flex-col items-center justify-end" style={{ height: `${height}%`, minHeight: '12px' }}>
+                          <span className="absolute -top-7 text-sm font-bold text-gray-800 opacity-0 group-hover:opacity-100 group-hover:-translate-y-1 transition-all duration-300">
+                            {item.orders.toLocaleString(language)}
+                          </span>
+                          <div
+                            className="w-full h-full bg-gradient-to-t from-blue-600 via-blue-500 to-blue-400 rounded-t-xl transition-all duration-700 hover:from-blue-700 hover:via-blue-600 hover:to-blue-500 relative overflow-hidden shadow-xl group-hover:shadow-2xl"
+                          >
+                            <div className="absolute inset-0 bg-gradient-to-t from-transparent via-white/20 to-white/30"></div>
+                            <div className="absolute inset-0 bg-white/20 animate-pulse"></div>
+                          </div>
                         </div>
                       </div>
-                      <span className="text-xs text-gray-600 font-bold mt-2">
+                    );
+                  })}
+                </div>
+                <div className="flex justify-between px-2">
+                  {stats.revenueData.map((item, i) => (
+                    <div key={i} className="flex-1 text-center">
+                      <span className="text-xs text-gray-600 font-bold">
                         {item.date.split(' ')[1] || item.date.split('/')[0]}
                       </span>
                     </div>
-                  );
-                })}
+                  ))}
+                </div>
               </div>
             ) : (
               <div className="text-center py-16 text-gray-400">
