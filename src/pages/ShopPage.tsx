@@ -133,7 +133,16 @@ export default function ShopPage({
 
   const availableColors = Array.from(
     new Set(
-      products.flatMap((p) => p.available_colors || []).filter((c): c is string => !!c)
+      products.flatMap((p) => p.available_colors || [])
+        .filter((c): c is string => !!c)
+        .map(c => {
+          try {
+            const parsed = JSON.parse(c);
+            return parsed.name || c;
+          } catch {
+            return c;
+          }
+        })
     )
   ).sort();
 
@@ -160,9 +169,16 @@ export default function ShopPage({
       }
 
       if (selectedColor !== 'all') {
-        if (!product.available_colors || !product.available_colors.includes(selectedColor)) {
-          return false;
-        }
+        if (!product.available_colors) return false;
+        const hasColor = product.available_colors.some(c => {
+          try {
+            const parsed = JSON.parse(c);
+            return parsed.name === selectedColor;
+          } catch {
+            return c === selectedColor;
+          }
+        });
+        if (!hasColor) return false;
       }
 
       if (priceRange !== 'all') {
@@ -197,8 +213,8 @@ export default function ShopPage({
 
     if (status === 'out_of_stock' || quantity === 0) {
       return (
-        <div className="absolute top-3 left-3 right-3">
-          <div className="bg-red-500 text-white px-3 py-1.5 rounded-md text-xs font-semibold shadow-lg backdrop-blur-sm bg-opacity-95">
+        <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-80">
+          <div className="bg-red-500 text-white px-4 py-2 rounded-md text-sm font-semibold shadow-lg">
             {t.outOfStock}
           </div>
         </div>
@@ -332,7 +348,11 @@ export default function ShopPage({
               <button
                 key={product.id}
                 onClick={() => onNavigate('product', product.id)}
-                className="group text-center"
+                className={`group text-center ${
+                  (product.stock_status === 'out_of_stock' || (product.stock_quantity || 0) === 0)
+                    ? 'opacity-99'
+                    : ''
+                }`}
               >
                 <div className="aspect-[3/4] bg-white rounded-lg overflow-hidden mb-4 shadow-sm hover:shadow-xl transition-all duration-300 relative">
                   {product.images && product.images[0] ? (
@@ -363,9 +383,23 @@ export default function ShopPage({
                 <h3 className="text-sm md:text-base text-[#5C4A3A] mb-1 font-light group-hover:text-[#8B7355] transition-colors tracking-wide">
                   {product.name}
                 </h3>
-                <p className="text-gray-600 text-sm font-light">
-                  {product.price} DZD
-                </p>
+                {product.is_on_promotion && product.promotion_price ? (
+                  <div className="flex items-center justify-center gap-2 flex-wrap">
+                    <span className="text-gray-400 text-xs line-through font-light">
+                      {product.price} DZD
+                    </span>
+                    <span className="text-[#8B7355] text-sm font-medium">
+                      {product.promotion_price} DZD
+                    </span>
+                    <span className="inline-block px-2 py-0.5 bg-gradient-to-r from-red-50 to-orange-50 text-red-600 text-xs font-medium rounded-full border border-red-100">
+                      -{Math.round(((product.price - product.promotion_price) / product.price) * 100)}%
+                    </span>
+                  </div>
+                ) : (
+                  <p className="text-gray-600 text-sm font-light">
+                    {product.price} DZD
+                  </p>
+                )}
               </button>
             ))}
           </div>
