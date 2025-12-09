@@ -1,3 +1,7 @@
+const onNavigate = (path: string) => {
+  window.location.href = `/${path}`;
+};
+
 const translations = {
   en: {
     hero: {
@@ -402,17 +406,20 @@ export default function AboutPage({ language = 'en' }: AboutPageProps) {
       </section>
 
       {/* Footer CTA */}
-      <section className="py-16 px-6 bg-white border-t border-gray-200">
-        <div className="max-w-4xl mx-auto text-center">
-          <h3 className="font-light text-2xl text-gray-800 mb-4">
-            {t.cta.title}
-          </h3>
-          <p className="text-gray-600 mb-8">{t.cta.desc}</p>
-          <button className="px-10 py-3 bg-gray-800 text-white text-sm font-medium tracking-wide hover:bg-gray-700 transition-all duration-300 rounded-sm">
-            {t.cta.button}
-          </button>
-        </div>
-      </section>
+<section className="py-16 px-6 bg-white border-t border-gray-200">
+  <div className="max-w-4xl mx-auto text-center">
+    <h3 className="font-light text-2xl text-gray-800 mb-4">
+      {t.cta.title}
+    </h3>
+    <p className="text-gray-600 mb-8">{t.cta.desc}</p>
+    <button
+      onClick={() => onNavigate('shop')}
+      className="px-10 py-3 bg-gray-800 text-white text-sm font-medium tracking-wide hover:bg-gray-700 transition-all duration-300 rounded-sm"
+    >
+      {t.cta.button}
+    </button>
+  </div>
+</section>
     </div>
   );
 }
