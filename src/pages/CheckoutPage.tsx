@@ -500,39 +500,7 @@ export default function CheckoutPage({
                 </div>
               </div>
 
-              <div>
-                <label className="block text-sm text-gray-600 mb-3 tracking-wide">
-                  {t.paymentMethod}
-                </label>
-                <div className="grid grid-cols-2 gap-4">
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setFormData({ ...formData, paymentMethod: 'cash' })
-                    }
-                    className={`py-4 border rounded-sm text-sm tracking-wide transition-all ${
-                      formData.paymentMethod === 'cash'
-                        ? 'border-gray-800 bg-gray-800 text-white'
-                        : 'border-gray-300 hover:border-gray-400'
-                    }`}
-                  >
-                    {t.cashOnDelivery}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setFormData({ ...formData, paymentMethod: 'card' })
-                    }
-                    className={`py-4 border rounded-sm text-sm tracking-wide transition-all ${
-                      formData.paymentMethod === 'card'
-                        ? 'border-gray-800 bg-gray-800 text-white'
-                        : 'border-gray-300 hover:border-gray-400'
-                    }`}
-                  >
-                    {t.cardPayment}
-                  </button>
-                </div>
-              </div>
+      
             </div>
 
             <button
