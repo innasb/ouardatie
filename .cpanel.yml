@@ -7,4 +7,6 @@ deployment:
     - /opt/cpanel/ea-nodejs20/bin/npm run build
 
     - /bin/echo "Deploying build files"
-    - /bin/rsync -av dist/ $DEPLOYPATH
+    - /bin/rsync -av --delete dist/ $DEPLOYPATH
+
+    - /bin/echo "Deployment completed!"
