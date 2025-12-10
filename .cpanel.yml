@@ -2,7 +2,7 @@ deployment:
   tasks:
     - /bin/echo "Setting deployment path"
     - export DEPLOYPATH=/home/tuzgcpym/public_html/
-
+    
     - /bin/echo "Installing dependencies"
     - /opt/cpanel/ea-nodejs20/bin/npm install
 
