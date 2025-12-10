@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { supabase } from '../lib/supabase';
 import { Database } from '../lib/database.types';
+import React from 'react';
 
 type Product = Database['public']['Tables']['products']['Row'];
 type Category = Database['public']['Tables']['categories']['Row'];
@@ -19,7 +20,7 @@ const translations = {
       viewAll: 'View All',
       ctaTitle: 'Where Comfort Meets Beauty',
       ctaText:
-        'Like petals unfolding in perfect harmony, each OUARDATIE piece is designed to make you feel naturally beautiful and effortlessly comfortable.',
+        'Ouardatie, founded by Ouarda, creates elegant and minimalist pieces designed to highlight every woman’s beauty. More than a brand, it’s an experience of confidence and elegance.',
       ctaButton: 'Explore Our Bloom',
     },
     footer: {
@@ -47,7 +48,7 @@ const translations = {
       viewAll: 'Voir Tout',
       ctaTitle: 'Où le Confort Rencontre la Beauté',
       ctaText:
-        "Comme des pétales s'ouvrant en parfaite harmonie, chaque pièce OUARDATIE est conçue pour vous faire sentir naturellement belle et confortablement à l'aise.",
+        "Ouardatie, fondée par Ouarda, crée des pièces élégantes et minimalistes pour sublimer chaque femme. Plus qu’une marque, une expérience de confiance et de beauté.",
       ctaButton: 'Explorez Notre Collection',
     },
     footer: {
@@ -75,7 +76,7 @@ const translations = {
       viewAll: 'عرض الكل',
       ctaTitle: 'حيث تلتقي الراحة بالجمال',
       ctaText:
-        'كل قطعة من ورداتي مصممة بعناية لتمنحك إحساساً بالجمال الطبيعي والراحة المطلقة.',
+        'ورداتي، أسستها وردة، تبتكر قطعًا أنيقة وبسيطة تهدف إلى إبراز جمال كل امرأة. أكثر من مجرد علامة تجارية، إنها تجربة ثقة وأناقة.',
       ctaButton: 'اكتشفي المجموعة',
     },
     footer: {
@@ -159,7 +160,21 @@ export default function HomePage({
     if (featured) setFeaturedProducts(featured);
     setLoading(false);
   };
+    const [currentImageIndex, setCurrentImageIndex] = React.useState(0);
+React.useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prev) => (prev + 1) % carouselImages.length);
+    }, 5000);
 
+    return () => clearInterval(interval);
+  }, []);
+
+ 
+const carouselImages = [
+  "/landing_ouarda.jpg",
+  "/landing2 (2).jpg",  // Add your second image
+  "/landing3.jpg"    // Add your third image
+];
   const loadCategories = async () => {
     const { data } = await supabase
       .from('categories')
@@ -207,38 +222,66 @@ export default function HomePage({
   return (
     <div className="min-h-screen bg-[#FAF9F7]" dir={isRTL ? 'rtl' : 'ltr'}>
       {/* Modern Hero Section */}
-      <div className="relative h-screen flex items-center overflow-hidden">
-        {/* Background Image */}
+<div className="relative min-h-screen flex items-center overflow-hidden py-20">
+        {/* Background Carousel */}
         <div className="absolute inset-0">
-          <img
-            src="/landing_ouarda.jpg"
-            alt="OUARDATIE Fashion"
-            className="w-full h-full object-cover"
-            loading="eager"
-          />
+          {carouselImages.map((img, idx) => (
+            <div
+              key={idx}
+              className={`absolute inset-0 transition-opacity duration-1000 ${
+                idx === currentImageIndex ? 'opacity-100' : 'opacity-0'
+              }`}
+            >
+              {/* Blurred background */}
+              <img
+                src={img}
+                alt=""
+                className="w-full h-full object-cover blur-2xl scale-110"
+                aria-hidden="true"
+              />
+              {/* Main image on top */}
+              <img
+                src={img}
+                alt={`OUARDATIE Fashion ${idx + 1}`}
+                className="absolute inset-0 w-full h-full object-contain"
+                loading={idx === 0 ? "eager" : "lazy"}
+              />
+            </div>
+          ))}
         </div>
-
+        {/* Carousel Navigation Dots */}
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex gap-2">
+          {carouselImages.map((_, idx) => (
+            <button
+              key={idx}
+              onClick={() => setCurrentImageIndex(idx)}
+              className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                idx === currentImageIndex 
+                  ? 'bg-white w-8' 
+                  : 'bg-white/50 hover:bg-white/75'
+              }`}
+              aria-label={`Go to slide ${idx + 1}`}
+            />
+          ))}
+        </div>
         {/* Content */}
         <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-12 w-full">
           <div className="max-w-2xl">
-            <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-extralight text-white mb-8 leading-[1.1] tracking-tight">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-8xl font-light text-white mb-6 sm:mb-8 leading-[1.2] tracking-tight font-serif">
               {t.hero.title}
             </h1>
-
-            <p className="text-white/90 text-lg md:text-xl mb-12 leading-relaxed font-light">
+            <p className="text-white/90 text-base sm:text-lg md:text-xl mb-8 sm:mb-12 leading-relaxed font-light">
               {t.hero.subtitle}
             </p>
-
             <button
               onClick={() => onNavigate('shop')}
-              className="px-10 py-4 bg-white text-[#5C4A3A] text-sm font-normal tracking-wide hover:bg-[#8B7355] hover:text-white transition-all duration-300 rounded-full"
+              className="px-8 sm:px-10 py-3 sm:py-4 bg-white text-[#5C4A3A] text-xs sm:text-sm font-normal tracking-widest uppercase hover:bg-[#8B7355] hover:text-white transition-all duration-300 rounded-full"
             >
               {t.hero.cta}
             </button>
           </div>
         </div>
       </div>
-
       {/* Featured Products Grid */}
       <section
         ref={featuredSection.ref}
@@ -329,7 +372,6 @@ export default function HomePage({
                           isRTL ? 'flex-row-reverse' : ''
                         }`}
                       >
-                        {'★'.repeat(5)}
                       </div>
                     </button>
                   </div>

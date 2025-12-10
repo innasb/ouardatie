@@ -357,10 +357,8 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
               {t('dashboard.title')}
             </h1>
             <p className="text-gray-600 text-xs md:text-sm flex items-center gap-2">
-              <span className="animate-wave inline-block">👋</span>
               <span className="hidden sm:inline">{t('dashboard.welcome')}</span>
               <span className="sm:hidden">OUARDATIE</span>
-              <span className="animate-sparkle inline-block">✨</span>
             </p>
           </div>
 
