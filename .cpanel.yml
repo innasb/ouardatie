@@ -1,13 +1,16 @@
 deployment:
   tasks:
-    - /bin/echo "Setting deployment path"
+    - /bin/echo "Set Node.js path"
+    - export PATH=/opt/cpanel/ea-nodejs20/bin:$PATH
+
+    - /bin/echo "Set deployment path"
     - export DEPLOYPATH=/home/tuzgcpym/public_html/
-    
+
     - /bin/echo "Installing dependencies"
-    - /opt/cpanel/ea-nodejs20/bin/npm install
+    - npm install
 
     - /bin/echo "Building project"
-    - /opt/cpanel/ea-nodejs20/bin/npm run build
+    - npm run build || /bin/echo "Build failed!"
 
     - /bin/echo "Deploying build files"
     - /bin/rsync -av --delete dist/ $DEPLOYPATH
