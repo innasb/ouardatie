@@ -267,12 +267,12 @@ const carouselImages = [
         {/* Content */}
         <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-12 w-full">
           <div className="max-w-2xl">
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-8xl font-light text-white mb-6 sm:mb-8 leading-[1.2] tracking-tight font-serif">
-              {t.hero.title}
-            </h1>
-            <p className="text-white/90 text-base sm:text-lg md:text-xl mb-8 sm:mb-12 leading-relaxed font-light">
-              {t.hero.subtitle}
-            </p>
+<h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-8xl font-light text-white mb-6 sm:mb-8 leading-[1.2] tracking-tight font-serif drop-shadow-[0_2px_10px_rgba(0,0,0,0.8)]">
+  {t.hero.title}
+</h1>
+<p className="text-white/90 text-base sm:text-lg md:text-xl mb-8 sm:mb-12 leading-relaxed font-light drop-shadow-[0_4px_12px_rgba(0,0,0,0.9)] [text-shadow:_2px_2px_8px_rgb(0_0_0_/_80%)]">
+  {t.hero.subtitle}
+</p>
             <button
               onClick={() => onNavigate('shop')}
               className="px-8 sm:px-10 py-3 sm:py-4 bg-white text-[#5C4A3A] text-xs sm:text-sm font-normal tracking-widest uppercase hover:bg-[#8B7355] hover:text-white transition-all duration-300 rounded-full"
