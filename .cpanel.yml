@@ -1,15 +1,15 @@
 deployment:
   tasks:
-    - echo "Installing dependencies"
-    - npm install
+    - /bin/echo "Setting deployment path"
+    - export DEPLOYPATH=/home/tuzgcpym/public_html/
+    
+    - /bin/echo "Installing dependencies"
+    - /opt/cpanel/ea-nodejs20/bin/npm install
 
-    - echo "Building project"
-    - npm run build
+    - /bin/echo "Building project"
+    - /opt/cpanel/ea-nodejs20/bin/npm run build
 
-    - echo "Cleaning public_html"
-    - rm -rf /home/innasb/public_html/*
+    - /bin/echo "Deploying build files"
+    - /bin/rsync -av --delete dist/ $DEPLOYPATH
 
-    - echo "Deploying build folder"
-    - cp -R dist/* /home/innasb/public_html/
-
-    - echo "Deployment completed!"
+    - /bin/echo "Deployment completed!"
