@@ -27,6 +27,11 @@ const translations = {
     outOfStock: 'Out of Stock',
     limitedQuantity: 'Limited Quantity',
     onlyLeft: '{count} left',
+    category: 'Category',
+    size: 'Size',
+    color: 'Color',
+    sort: 'Sort',
+    all: 'All',
   },
   fr: {
     title: 'Boutique',
@@ -49,6 +54,11 @@ const translations = {
     outOfStock: 'Rupture de Stock',
     limitedQuantity: 'Quantité Limitée',
     onlyLeft: '{count} restant',
+    category: 'Catégorie',
+    size: 'Taille',
+    color: 'Couleur',
+    sort: 'Trier',
+    all: 'Tout',
   },
   ar: {
     title: 'المتجر',
@@ -71,6 +81,11 @@ const translations = {
     outOfStock: 'نفذت الكمية',
     limitedQuantity: 'كمية محدودة',
     onlyLeft: 'متبقي {count} فقط',
+    category: 'الفئة',
+    size: 'المقاس',
+    color: 'اللون',
+    sort: 'ترتيب',
+    all: 'الكل',
   },
 };
 
@@ -94,11 +109,24 @@ export default function ShopPage({
   );
   const [selectedSize, setSelectedSize] = useState<string>('all');
   const [selectedColor, setSelectedColor] = useState<string>('all');
-  const [priceRange, ] = useState<string>('all');
+  const [priceRange] = useState<string>('all');
   const [sortBy, setSortBy] = useState<string>('newest');
+  const [showFilters, setShowFilters] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   const t = translations[language];
   const isRTL = language === 'ar';
+
+  // Check if mobile on mount and resize
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth > 1024);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   useEffect(() => {
     loadData();
@@ -195,7 +223,6 @@ export default function ShopPage({
       if (sortBy === 'price-low') return a.price - b.price;
       if (sortBy === 'price-high') return b.price - a.price;
       if (sortBy === 'best-sellers') {
-        // Sort by is_featured first, then by created_at
         if (a.is_featured && !b.is_featured) return -1;
         if (!a.is_featured && b.is_featured) return 1;
         return (
@@ -237,6 +264,162 @@ export default function ShopPage({
     return null;
   };
 
+  const sortOptions = [
+    { value: 'newest', label: t.newest },
+    { value: 'best-sellers', label: t.bestSellers },
+    { value: 'price-low', label: t.priceLow },
+    { value: 'price-high', label: t.priceHigh },
+  ];
+
+  // Filter Content Component
+  const FilterContent = ({ isSidebar = false }) => (
+    <div className={`space-y-8 ${isSidebar ? '' : 'mb-16'}`}>
+      {/* Search Bar */}
+      <div className={isSidebar ? '' : 'max-w-xl mx-auto'}>
+        <div className="relative group">
+          <input
+            type="text"
+            placeholder={t.search}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full px-6 py-3.5 bg-transparent border-b border-gray-200 focus:outline-none focus:border-[#5C4A3A] text-sm font-light tracking-widest transition-all text-center placeholder:text-gray-400"
+          />
+          <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-[#8B7355] to-transparent opacity-0 group-focus-within:opacity-100 transition-opacity" />
+        </div>
+      </div>
+
+      {/* Category Slider */}
+      <div className="space-y-3">
+        <h3 className={`text-xs font-light tracking-widest uppercase text-[#5C4A3A] opacity-60 ${isSidebar ? '' : 'text-center'}`}>
+          {t.category}
+        </h3>
+        <div className="overflow-x-auto scrollbar-hide">
+          <div className={`flex gap-3 min-w-max ${isSidebar ? '' : 'justify-center px-6'}`}>
+            <button
+              onClick={() => setSelectedCategory('all')}
+              className={`px-6 py-2 text-xs font-light tracking-widest uppercase transition-all ${
+                selectedCategory === 'all'
+                  ? 'bg-[#5C4A3A] text-white'
+                  : 'bg-white text-[#5C4A3A] hover:bg-gray-50'
+              }`}
+            >
+              {t.all}
+            </button>
+            {categories.map((cat) => (
+              <button
+                key={cat.id}
+                onClick={() => setSelectedCategory(cat.id)}
+                className={`px-6 py-2 text-xs font-light tracking-widest uppercase whitespace-nowrap transition-all ${
+                  selectedCategory === cat.id
+                    ? 'bg-[#5C4A3A] text-white'
+                    : 'bg-white text-[#5C4A3A] hover:bg-gray-50'
+                }`}
+              >
+                {cat.name}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Size Slider */}
+      {availableSizes.length > 0 && (
+        <div className="space-y-3">
+          <h3 className={`text-xs font-light tracking-widest uppercase text-[#5C4A3A] opacity-60 ${isSidebar ? '' : 'text-center'}`}>
+            {t.size}
+          </h3>
+          <div className="overflow-x-auto scrollbar-hide">
+            <div className={`flex gap-3 min-w-max ${isSidebar ? '' : 'justify-center px-6'}`}>
+              <button
+                onClick={() => setSelectedSize('all')}
+                className={`px-6 py-2 text-xs font-light tracking-widest uppercase transition-all ${
+                  selectedSize === 'all'
+                    ? 'bg-[#5C4A3A] text-white'
+                    : 'bg-white text-[#5C4A3A] hover:bg-gray-50'
+                }`}
+              >
+                {t.all}
+              </button>
+              {availableSizes.map((size) => (
+                <button
+                  key={size}
+                  onClick={() => setSelectedSize(size)}
+                  className={`px-6 py-2 text-xs font-light tracking-widest uppercase whitespace-nowrap transition-all ${
+                    selectedSize === size
+                      ? 'bg-[#5C4A3A] text-white'
+                      : 'bg-white text-[#5C4A3A] hover:bg-gray-50'
+                  }`}
+                >
+                  {size}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Color Slider */}
+      {availableColors.length > 0 && (
+        <div className="space-y-3">
+          <h3 className={`text-xs font-light tracking-widest uppercase text-[#5C4A3A] opacity-60 ${isSidebar ? '' : 'text-center'}`}>
+            {t.color}
+          </h3>
+          <div className="overflow-x-auto scrollbar-hide">
+            <div className={`flex gap-3 min-w-max ${isSidebar ? '' : 'justify-center px-6'}`}>
+              <button
+                onClick={() => setSelectedColor('all')}
+                className={`px-6 py-2 text-xs font-light tracking-widest uppercase transition-all ${
+                  selectedColor === 'all'
+                    ? 'bg-[#5C4A3A] text-white'
+                    : 'bg-white text-[#5C4A3A] hover:bg-gray-50'
+                }`}
+              >
+                {t.all}
+              </button>
+              {availableColors.map((color) => (
+                <button
+                  key={color}
+                  onClick={() => setSelectedColor(color)}
+                  className={`px-6 py-2 text-xs font-light tracking-widest uppercase whitespace-nowrap transition-all ${
+                    selectedColor === color
+                      ? 'bg-[#5C4A3A] text-white'
+                      : 'bg-white text-[#5C4A3A] hover:bg-gray-50'
+                  }`}
+                >
+                  {color}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Sort Slider */}
+      <div className="space-y-3">
+        <h3 className={`text-xs font-light tracking-widest uppercase text-[#5C4A3A] opacity-60 ${isSidebar ? '' : 'text-center'}`}>
+          {t.sort}
+        </h3>
+        <div className="overflow-x-auto scrollbar-hide">
+          <div className={`flex gap-3 min-w-max ${isSidebar ? '' : 'justify-center px-6'}`}>
+            {sortOptions.map((option) => (
+              <button
+                key={option.value}
+                onClick={() => setSortBy(option.value)}
+                className={`px-6 py-2 text-xs font-light tracking-widest uppercase whitespace-nowrap transition-all ${
+                  sortBy === option.value
+                    ? 'bg-[#5C4A3A] text-white'
+                    : 'bg-white text-[#5C4A3A] hover:bg-gray-50'
+                }`}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <div
       className="min-h-screen bg-[#FAF9F7] pt-24 pb-16"
@@ -247,82 +430,60 @@ export default function ShopPage({
           {t.title}
         </h1>
 
-        {/* Minimalist Filter Bar */}
-        <div className="mb-16 max-w-5xl mx-auto space-y-6">
-          {/* Search */}
-          <div className="max-w-2xl mx-auto">
-            <input
-              type="text"
-              placeholder={t.search}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full px-6 py-3 bg-white border border-gray-200 rounded-full focus:outline-none focus:border-[#8B7355] text-sm font-light tracking-wide transition-colors"
-            />
-          </div>
-
-          {/* Single Row with all filters */}
-          <div className="flex flex-wrap gap-3 justify-center items-center">
-            {/* Category */}
-            <select
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-              className="px-5 py-2 bg-white border border-gray-200 rounded-full focus:outline-none focus:border-[#8B7355] text-xs font-light tracking-wide cursor-pointer"
-            >
-              <option value="all">{t.allCategories}</option>
-              {categories.map((cat) => (
-                <option key={cat.id} value={cat.id}>
-                  {cat.name}
-                </option>
-              ))}
-            </select>
-
-            {/* Size */}
-            {availableSizes.length > 0 && (
-              <select
-                value={selectedSize}
-                onChange={(e) => setSelectedSize(e.target.value)}
-                className="px-5 py-2 bg-white border border-gray-200 rounded-full focus:outline-none focus:border-[#8B7355] text-xs font-light tracking-wide cursor-pointer"
-              >
-                <option value="all">{t.allSizes}</option>
-                {availableSizes.map((size) => (
-                  <option key={size} value={size}>
-                    {size}
-                  </option>
-                ))}
-              </select>
-            )}
-
-            {/* Color */}
-            {availableColors.length > 0 && (
-              <select
-                value={selectedColor}
-                onChange={(e) => setSelectedColor(e.target.value)}
-                className="px-5 py-2 bg-white border border-gray-200 rounded-full focus:outline-none focus:border-[#8B7355] text-xs font-light tracking-wide cursor-pointer"
-              >
-                <option value="all">{t.allColors}</option>
-                {availableColors.map((color) => (
-                  <option key={color} value={color}>
-                    {color}
-                  </option>
-                ))}
-              </select>
-            )}
-
-            <div className="w-px h-6 bg-gray-200" />
-
-            {/* Sort */}
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              className="px-5 py-2 bg-white border border-gray-200 rounded-full focus:outline-none focus:border-[#8B7355] text-xs font-light tracking-wide cursor-pointer"
-            >
-              <option value="newest">{t.newest}</option>
-              <option value="best-sellers">{t.bestSellers}</option>
-              <option value="price-low">{t.priceLow}</option>
-              <option value="price-high">{t.priceHigh}</option>
-            </select>
-          </div>
+        {/* Filter Toggle Button */}
+        <div className="flex justify-end mb-8 max-w-7xl mx-auto">
+          <button
+            onClick={() => setShowFilters(!showFilters)}
+            className="flex items-center gap-2 px-6 py-2.5 bg-white hover:bg-gray-50 text-[#5C4A3A] text-xs font-light tracking-widest uppercase transition-all shadow-sm"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+            </svg>
+            {t.filters}
+          </button>
         </div>
+
+        {/* MOBILE: Slide-out Panel */}
+        {isMobile ? (
+          <>
+            {/* Overlay */}
+            {showFilters && (
+              <div 
+                className="fixed inset-0 bg-black bg-opacity-30 z-40 transition-opacity duration-300"
+                onClick={() => setShowFilters(false)}
+              />
+            )}
+            
+            {/* Side Panel */}
+            <div className={`fixed top-0 ${isRTL ? 'left-0' : 'right-0'} h-full w-full sm:w-96 bg-[#FAF9F7] z-50 shadow-2xl transition-transform duration-500 ease-in-out ${
+              showFilters ? 'translate-x-0' : (isRTL ? '-translate-x-full' : 'translate-x-full')
+            } overflow-y-auto`}>
+              <div className="p-8">
+                {/* Close Button */}
+                <div className="flex justify-between items-center mb-8">
+                  <h2 className="text-xl font-light tracking-widest uppercase text-[#5C4A3A]">{t.filters}</h2>
+                  <button
+                    onClick={() => setShowFilters(false)}
+                    className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                  >
+                    <svg className="w-5 h-5 text-[#5C4A3A]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+
+                <FilterContent isSidebar={true} />
+              </div>
+            </div>
+          </>
+        ) : (
+          /* DESKTOP: Collapsible Horizontal Filters */
+          <div className={`transition-all duration-500 ease-in-out ${
+            showFilters ? 'opacity-100 max-h-[1000px]' : 'opacity-0 max-h-0 overflow-hidden'
+          }`}>
+            <FilterContent isSidebar={false} />
+          </div>
+        )}
 
         {loading ? (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8">
@@ -405,6 +566,16 @@ export default function ShopPage({
           </div>
         )}
       </div>
+      
+      <style>{`
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+        }
+        .scrollbar-hide {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+      `}</style>
     </div>
   );
 }
