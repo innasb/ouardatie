@@ -7,16 +7,19 @@ const navTranslations = {
     home: 'Home',
     shop: 'Shop',
     about: 'About',
+    cart: 'Cart',
   },
   fr: {
     home: 'Accueil',
     shop: 'Boutique',
     about: 'À Propos',
+    cart: 'Panier',
   },
   ar: {
     home: 'الرئيسية',
     shop: 'المتجر',
     about: 'من نحن',
+    cart: 'السلة',
   },
 };
 
@@ -33,7 +36,7 @@ export default function Navbar({
   language = 'en',
   onLanguageChange,
 }: NavbarProps) {
-  const { totalItems } = useCart();
+  const { totalItems, totalPrice } = useCart();
   const t = navTranslations[language];
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -143,14 +146,17 @@ export default function Navbar({
 
             <button
               onClick={() => handleNavigate('cart')}
-              className="relative text-gray-600 hover:text-gray-800 transition-colors"
+              className="flex items-center gap-2 text-gray-600 hover:text-gray-800 transition-colors"
             >
-              <ShoppingBag className="w-5 h-5" />
-              {totalItems > 0 && (
-                <span className="absolute -top-2 -right-2 bg-gray-800 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
-                  {totalItems}
-                </span>
-              )}
+              <div className="relative">
+                <ShoppingBag className="w-5 h-5" />
+                {totalItems > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-gray-800 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
+                    {totalItems}
+                  </span>
+                )}
+              </div>
+              <span className="text-sm tracking-wide">{t.cart} {totalPrice} DZD</span>
             </button>
           </div>
         </div>
@@ -182,14 +188,17 @@ export default function Navbar({
 
           <button
             onClick={() => handleNavigate('cart')}
-            className="relative text-gray-600 hover:text-gray-800 transition-colors"
+            className="flex items-center gap-2 text-gray-600 hover:text-gray-800 transition-colors"
           >
-            <ShoppingBag className="w-5 h-5" />
-            {totalItems > 0 && (
-              <span className="absolute -top-2 -right-2 bg-gray-800 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
-                {totalItems}
-              </span>
-            )}
+            <div className="relative">
+              <ShoppingBag className="w-5 h-5" />
+              {totalItems > 0 && (
+                <span className="absolute -top-2 -right-2 bg-gray-800 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
+                  {totalItems}
+                </span>
+              )}
+            </div>
+            <span className="text-sm tracking-wide">{t.cart} {totalPrice} DZD</span>
           </button>
         </div>
 
