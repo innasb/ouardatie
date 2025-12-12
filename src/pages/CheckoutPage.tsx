@@ -6,6 +6,7 @@ import { Database } from '../lib/database.types';
 // Import the Commune type
 type ShippingOption = Database['public']['Tables']['shipping_options']['Row'];
 type Commune = Database['public']['Tables']['communes']['Row'];
+type Profile = Database['public']['Tables']['profiles']['Row'];
 
 const translations = {
   en: {
@@ -24,7 +25,7 @@ const translations = {
     wilaya: 'Wilaya',
     selectWilaya: 'Select Wilaya',
     commune: 'Commune',
-    selectCommune: 'Select Commune', // Added
+    selectCommune: 'Select Commune',
     shippingType: 'Shipping Type',
     deskDelivery: 'Desk Delivery',
     homeDelivery: 'Home Delivery',
@@ -39,6 +40,7 @@ const translations = {
     shipping: 'Shipping',
     total: 'Total',
     noImage: 'No Image',
+    loadingProfile: 'Loading your information...',
   },
   fr: {
     title: 'Paiement',
@@ -56,7 +58,7 @@ const translations = {
     wilaya: 'Wilaya',
     selectWilaya: 'Sélectionner Wilaya',
     commune: 'Commune',
-    selectCommune: 'Sélectionner Commune', // Added
+    selectCommune: 'Sélectionner Commune',
     shippingType: 'Type de Livraison',
     deskDelivery: 'Livraison au Bureau',
     homeDelivery: 'Livraison à Domicile',
@@ -71,6 +73,7 @@ const translations = {
     shipping: 'Livraison',
     total: 'Total',
     noImage: "Pas d'image",
+    loadingProfile: 'Chargement de vos informations...',
   },
   ar: {
     title: 'إتمام الطلب',
@@ -88,7 +91,7 @@ const translations = {
     wilaya: 'الولاية',
     selectWilaya: 'اختر الولاية',
     commune: 'البلدية',
-    selectCommune: 'اختر البلدية', // Added
+    selectCommune: 'اختر البلدية',
     shippingType: 'نوع الشحن',
     deskDelivery: 'التوصيل للمكتب',
     homeDelivery: 'التوصيل للمنزل',
@@ -103,6 +106,7 @@ const translations = {
     shipping: 'الشحن',
     total: 'المجموع',
     noImage: 'لا توجد صورة',
+    loadingProfile: 'جاري تحميل معلوماتك...',
   },
 };
 
@@ -117,14 +121,13 @@ export default function CheckoutPage({
 }: CheckoutPageProps) {
   const { items, totalPrice, clearCart } = useCart();
   const [shippingOptions, setShippingOptions] = useState<ShippingOption[]>([]);
-
-  // Add state for communes
   const [allCommunes, setAllCommunes] = useState<Commune[]>([]);
   const [filteredCommunes, setFilteredCommunes] = useState<Commune[]>([]);
-
   const [loading, setLoading] = useState(false);
+  const [loadingProfile, setLoadingProfile] = useState(true);
   const [orderSuccess, setOrderSuccess] = useState(false);
   const [orderId, setOrderId] = useState<string>('');
+  const [currentUser, setCurrentUser] = useState<any>(null);
 
   const t = translations[language];
 
@@ -136,6 +139,45 @@ export default function CheckoutPage({
     shippingType: 'desk' as 'desk' | 'home',
     paymentMethod: 'cash' as 'card' | 'cash',
   });
+
+  // Load user profile and pre-fill form
+  useEffect(() => {
+    const loadUserProfile = async () => {
+      setLoadingProfile(true);
+      try {
+        // Get current user
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        if (user) {
+          setCurrentUser(user);
+          
+          // Load user profile
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', user.id)
+            .single();
+
+          if (profile) {
+            // Pre-fill form with user data
+            setFormData(prev => ({
+              ...prev,
+              fullName: profile.full_name || '',
+              phone: profile.phone_number || '',
+              wilaya: profile.wilaya || '',
+              commune: profile.commune || '',
+            }));
+          }
+        }
+      } catch (error) {
+        console.error('Error loading user profile:', error);
+      } finally {
+        setLoadingProfile(false);
+      }
+    };
+
+    loadUserProfile();
+  }, []);
 
   useEffect(() => {
     // Load both shipping options and all communes on component mount
@@ -158,14 +200,10 @@ export default function CheckoutPage({
     loadData();
   }, []);
 
-  // New useEffect to filter communes when wilaya changes
+  // Filter communes when wilaya changes
   useEffect(() => {
     if (!formData.wilaya || !allCommunes.length) {
       setFilteredCommunes([]);
-      // Reset commune when wilaya changes
-      if (formData.commune) {
-        setFormData((prev) => ({ ...prev, commune: '' }));
-      }
       return;
     }
 
@@ -183,21 +221,14 @@ export default function CheckoutPage({
       return communeWilayaNormalized === selectedWilayaNormalized;
     });
 
-    console.log('Selected Wilaya:', formData.wilaya);
-    console.log('Total communes in DB:', allCommunes.length);
-    console.log('Filtered communes:', communesForWilaya.length);
-    console.log(
-      'Sample commune wilayas:',
-      allCommunes.slice(0, 5).map((c) => c.wilaya)
-    );
-
     setFilteredCommunes(communesForWilaya);
 
-    // Reset commune selection when wilaya changes
-    if (formData.commune) {
+    // Only reset commune if it's not in the filtered list
+    if (formData.commune && !communesForWilaya.find(c => c.commune_name === formData.commune)) {
       setFormData((prev) => ({ ...prev, commune: '' }));
     }
-  }, [formData.wilaya, allCommunes]);
+  }, [formData.wilaya, allCommunes, formData.commune]);
+
   const selectedWilaya = shippingOptions.find(
     (opt) => opt.wilaya === formData.wilaya
   );
@@ -222,7 +253,6 @@ export default function CheckoutPage({
       return;
     }
 
-    // Add check for commune
     if (!formData.commune) {
       alert('Please select a commune');
       return;
@@ -231,6 +261,7 @@ export default function CheckoutPage({
     setLoading(true);
 
     try {
+      // Create order with user_id if logged in
       const { data: order, error: orderError } = await supabase
         .from('orders')
         .insert({
@@ -243,12 +274,14 @@ export default function CheckoutPage({
           total_amount: total,
           payment_method: formData.paymentMethod,
           status: 'pending',
+          user_id: currentUser?.id || null, // Link to user if logged in
         })
         .select()
         .single();
 
       if (orderError) throw orderError;
 
+      // Insert order items
       const orderItems = items.map((item) => ({
         order_id: order.id,
         product_id: item.productId,
@@ -259,15 +292,38 @@ export default function CheckoutPage({
         color: item.color,
       }));
 
-const { error: itemsError } = await supabase
+      const { error: itemsError } = await supabase
         .from('order_items')
         .insert(orderItems);
 
       if (itemsError) throw itemsError;
 
+      // Update user purchase statistics (backup to trigger)
+      if (currentUser?.id) {
+        try {
+          const { data: currentProfile } = await supabase
+            .from('profiles')
+            .select('total_purchases, total_spent')
+            .eq('id', currentUser.id)
+            .single();
+
+          await supabase
+            .from('profiles')
+            .update({
+              total_purchases: (currentProfile?.total_purchases || 0) + 1,
+              total_spent: (currentProfile?.total_spent || 0) + total,
+              last_purchase_date: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+            })
+            .eq('id', currentUser.id);
+        } catch (profileError) {
+          console.error('Error updating user profile stats:', profileError);
+          // Don't fail the order if profile update fails
+        }
+      }
+
       // Decrement stock for each item
       for (const item of items) {
-        // Fetch the current product to get its stock_variants
         const { data: product, error: fetchError } = await supabase
           .from('products')
           .select('stock_variants, stock_quantity, available_colors')
@@ -280,7 +336,6 @@ const { error: itemsError } = await supabase
         }
 
         if (product && product.stock_variants && product.stock_variants.length > 0) {
-          // Parse stock variants
           const parsedVariants = product.stock_variants.map((variant: string | any) => {
             try {
               if (typeof variant === 'object' && variant !== null && 'quantity' in variant) {
@@ -293,7 +348,6 @@ const { error: itemsError } = await supabase
             }
           }).filter((v: any) => v !== null);
 
-          // Parse color options to find the hex value for the item's color name
           const parsedColors = (product.available_colors || []).map((colorStr: string | any) => {
             try {
               if (typeof colorStr === 'object' && colorStr !== null && colorStr.hex && colorStr.name) {
@@ -305,19 +359,15 @@ const { error: itemsError } = await supabase
             }
           }).filter((c: any) => c !== null);
 
-          // Find the hex value for the item's color name
           const colorHex = parsedColors.find((c: any) => c.name === item.color)?.hex;
 
-          // Find and update the matching variant
           const updatedVariants = parsedVariants.map((variant: any) => {
-            // Match by colorHex and size
             if (colorHex && variant.colorHex === colorHex && variant.size === item.size) {
               return {
                 ...variant,
                 quantity: Math.max(0, variant.quantity - item.quantity)
               };
             }
-            // Fallback: match by color name and size
             if (variant.color === item.color && variant.size === item.size) {
               return {
                 ...variant,
@@ -327,7 +377,6 @@ const { error: itemsError } = await supabase
             return variant;
           });
 
-          // Update the product with new stock variants
           const { error: updateError } = await supabase
             .from('products')
             .update({ stock_variants: updatedVariants })
@@ -337,7 +386,6 @@ const { error: itemsError } = await supabase
             console.error('Error updating stock:', updateError);
           }
         } else {
-          // No variants system, decrement general stock_quantity
           const newQuantity = Math.max(0, (product?.stock_quantity || 0) - item.quantity);
           const { error: updateError } = await supabase
             .from('products')
@@ -456,141 +504,143 @@ const { error: itemsError } = await supabase
               {t.shippingInfo}
             </h2>
 
-            <div className="space-y-6">
-              <div>
-                <label
-                  className={`block text-sm text-gray-600 mb-2 tracking-wide ${
-                    language === 'ar' ? 'text-right' : 'text-left'
-                  }`}
-                  dir={language === 'ar' ? 'rtl' : 'ltr'}
-                >
-                  {t.fullName}
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={formData.fullName}
-                  onChange={(e) =>
-                    setFormData({ ...formData, fullName: e.target.value })
-                  }
-                  className="w-full px-4 py-3 border border-gray-200 rounded-sm focus:outline-none focus:border-gray-400"
-                />
+            {loadingProfile ? (
+              <div className="flex items-center justify-center py-12">
+                <div className="text-gray-500">{t.loadingProfile}</div>
               </div>
-
-              <div>
-                <label className="block text-sm text-gray-600 mb-2 tracking-wide">
-                  {t.phone}
-                </label>
-                <input
-                  type="tel"
-                  required
-                  value={formData.phone}
-                  onChange={(e) =>
-                    setFormData({ ...formData, phone: e.target.value })
-                  }
-                  className="w-full px-4 py-3 border border-gray-200 rounded-sm focus:outline-none focus:border-gray-400"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm text-gray-600 mb-2 tracking-wide">
-                  {t.wilaya}
-                </label>
-                <select
-                  required
-                  value={formData.wilaya}
-                  onChange={(e) =>
-                    setFormData({ ...formData, wilaya: e.target.value })
-                  }
-                  className="w-full px-4 py-3 border border-gray-200 rounded-sm focus:outline-none focus:border-gray-400"
-                >
-                  <option value="">{t.selectWilaya}</option>
-                  {shippingOptions.map((opt) => (
-                    <option key={opt.id} value={opt.wilaya}>
-                      {opt.wilaya}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Updated Commune Field */}
-              <div>
-                <label className="block text-sm text-gray-600 mb-2 tracking-wide">
-                  {t.commune}
-                </label>
-                <select
-                  required
-                  value={formData.commune}
-                  onChange={(e) =>
-                    setFormData({ ...formData, commune: e.target.value })
-                  }
-                  // Disable dropdown if no wilaya is selected
-                  disabled={!formData.wilaya}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-sm focus:outline-none focus:border-gray-400 disabled:bg-gray-100"
-                >
-                  <option value="">{t.selectCommune}</option>
-                  {filteredCommunes.map((commune) => (
-                    <option key={commune.id} value={commune.commune_name}>
-                      {commune.commune_name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm text-gray-600 mb-3 tracking-wide">
-                  {t.shippingType}
-                </label>
-                <div className="grid grid-cols-2 gap-4">
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setFormData({ ...formData, shippingType: 'desk' })
-                    }
-                    className={`py-4 border rounded-sm transition-all ${
-                      formData.shippingType === 'desk'
-                        ? 'border-gray-800 bg-gray-800 text-white'
-                        : 'border-gray-300 hover:border-gray-400'
+            ) : (
+              <div className="space-y-6">
+                <div>
+                  <label
+                    className={`block text-sm text-gray-600 mb-2 tracking-wide ${
+                      language === 'ar' ? 'text-right' : 'text-left'
                     }`}
+                    dir={language === 'ar' ? 'rtl' : 'ltr'}
                   >
-                    <div className="text-sm tracking-wide">
-                      {t.deskDelivery}
-                    </div>
-                    {selectedWilaya && (
-                      <div className="text-xs mt-1 opacity-75">
-                        {selectedWilaya.desk_price} DZD
-                      </div>
-                    )}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setFormData({ ...formData, shippingType: 'home' })
+                    {t.fullName}
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.fullName}
+                    onChange={(e) =>
+                      setFormData({ ...formData, fullName: e.target.value })
                     }
-                    className={`py-4 border rounded-sm transition-all ${
-                      formData.shippingType === 'home'
-                        ? 'border-gray-800 bg-gray-800 text-white'
-                        : 'border-gray-300 hover:border-gray-400'
-                    }`}
+                    className="w-full px-4 py-3 border border-gray-200 rounded-sm focus:outline-none focus:border-gray-400"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm text-gray-600 mb-2 tracking-wide">
+                    {t.phone}
+                  </label>
+                  <input
+                    type="tel"
+                    required
+                    value={formData.phone}
+                    onChange={(e) =>
+                      setFormData({ ...formData, phone: e.target.value })
+                    }
+                    className="w-full px-4 py-3 border border-gray-200 rounded-sm focus:outline-none focus:border-gray-400"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm text-gray-600 mb-2 tracking-wide">
+                    {t.wilaya}
+                  </label>
+                  <select
+                    required
+                    value={formData.wilaya}
+                    onChange={(e) =>
+                      setFormData({ ...formData, wilaya: e.target.value })
+                    }
+                    className="w-full px-4 py-3 border border-gray-200 rounded-sm focus:outline-none focus:border-gray-400"
                   >
-                    <div className="text-sm tracking-wide">
-                      {t.homeDelivery}
-                    </div>
-                    {selectedWilaya && (
-                      <div className="text-xs mt-1 opacity-75">
-                        {selectedWilaya.home_price} DZD
+                    <option value="">{t.selectWilaya}</option>
+                    {shippingOptions.map((opt) => (
+                      <option key={opt.id} value={opt.wilaya}>
+                        {opt.wilaya}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm text-gray-600 mb-2 tracking-wide">
+                    {t.commune}
+                  </label>
+                  <select
+                    required
+                    value={formData.commune}
+                    onChange={(e) =>
+                      setFormData({ ...formData, commune: e.target.value })
+                    }
+                    disabled={!formData.wilaya}
+                    className="w-full px-4 py-3 border border-gray-200 rounded-sm focus:outline-none focus:border-gray-400 disabled:bg-gray-100"
+                  >
+                    <option value="">{t.selectCommune}</option>
+                    {filteredCommunes.map((commune) => (
+                      <option key={commune.id} value={commune.commune_name}>
+                        {commune.commune_name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm text-gray-600 mb-3 tracking-wide">
+                    {t.shippingType}
+                  </label>
+                  <div className="grid grid-cols-2 gap-4">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setFormData({ ...formData, shippingType: 'desk' })
+                      }
+                      className={`py-4 border rounded-sm transition-all ${
+                        formData.shippingType === 'desk'
+                          ? 'border-gray-800 bg-gray-800 text-white'
+                          : 'border-gray-300 hover:border-gray-400'
+                      }`}
+                    >
+                      <div className="text-sm tracking-wide">
+                        {t.deskDelivery}
                       </div>
-                    )}
-                  </button>
+                      {selectedWilaya && (
+                        <div className="text-xs mt-1 opacity-75">
+                          {selectedWilaya.desk_price} DZD
+                        </div>
+                      )}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setFormData({ ...formData, shippingType: 'home' })
+                      }
+                      className={`py-4 border rounded-sm transition-all ${
+                        formData.shippingType === 'home'
+                          ? 'border-gray-800 bg-gray-800 text-white'
+                          : 'border-gray-300 hover:border-gray-400'
+                      }`}
+                    >
+                      <div className="text-sm tracking-wide">
+                        {t.homeDelivery}
+                      </div>
+                      {selectedWilaya && (
+                        <div className="text-xs mt-1 opacity-75">
+                          {selectedWilaya.home_price} DZD
+                        </div>
+                      )}
+                    </button>
+                  </div>
                 </div>
               </div>
-
-      
-            </div>
+            )}
 
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || loadingProfile}
               className="w-full mt-8 py-4 bg-gray-800 text-white text-sm tracking-widest hover:bg-gray-700 transition-all disabled:bg-gray-400"
             >
               {loading ? t.placingOrder : t.placeOrder}

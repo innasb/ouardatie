@@ -48,6 +48,56 @@ export type Database = {
         }
         Relationships: []
       }
+      profiles: {
+        Row: {
+          id: string
+          full_name: string | null
+          phone_number: string | null
+          wilaya: string | null
+          commune: string | null
+          is_admin: boolean
+          total_purchases: number | null
+          total_spent: number | null
+          last_purchase_date: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id: string
+          full_name?: string | null
+          phone_number?: string | null
+          wilaya?: string | null
+          commune?: string | null
+          is_admin?: boolean
+          total_purchases?: number | null
+          total_spent?: number | null
+          last_purchase_date?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          full_name?: string | null
+          phone_number?: string | null
+          wilaya?: string | null
+          commune?: string | null
+          is_admin?: boolean
+          total_purchases?: number | null
+          total_spent?: number | null
+          last_purchase_date?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       products: {
         Row: {
           id: string
@@ -66,7 +116,7 @@ export type Database = {
           is_featured: boolean | null
           is_on_promotion: boolean | null
           promotion_price: number | null
-          stock_variants: string[] | null  // Array of JSON strings
+          stock_variants: string[] | null
           created_at: string
           updated_at: string
         }
@@ -85,7 +135,7 @@ export type Database = {
           stock_quantity?: number | null
           stock_status?: string | null
           is_featured?: boolean | null
-          stock_variants?: string[] | null  // OPTIONAL for insert
+          stock_variants?: string[] | null
           is_on_promotion?: boolean | null
           promotion_price?: number | null
           created_at?: string
@@ -108,7 +158,7 @@ export type Database = {
           is_featured?: boolean | null
           is_on_promotion?: boolean | null
           promotion_price?: number | null
-          stock_variants?: string[] | null  // OPTIONAL for update
+          stock_variants?: string[] | null
           created_at?: string
           updated_at?: string
         }
@@ -158,6 +208,7 @@ export type Database = {
           total_amount: number
           status: 'pending' | 'confirmed' | 'shipped' | 'delivered' | 'canceled'
           payment_method: 'card' | 'cash'
+          user_id: string | null
           created_at: string
           updated_at: string
         }
@@ -172,6 +223,7 @@ export type Database = {
           total_amount: number
           status?: 'pending' | 'confirmed' | 'shipped' | 'delivered' | 'canceled'
           payment_method: 'card' | 'cash'
+          user_id?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -186,10 +238,19 @@ export type Database = {
           total_amount?: number
           status?: 'pending' | 'confirmed' | 'shipped' | 'delivered' | 'canceled'
           payment_method?: 'card' | 'cash'
+          user_id?: string | null
           created_at?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "orders_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          }
+        ]
       }
       order_items: {
         Row: {
@@ -244,7 +305,28 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      user_purchase_stats: {
+        Row: {
+          user_id: string | null
+          full_name: string | null
+          phone_number: string | null
+          total_orders: number | null
+          total_spent: number | null
+          completed_orders: number | null
+          canceled_orders: number | null
+          last_order_date: string | null
+          first_order_date: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
     }
     Functions: {
       [_ in never]: never

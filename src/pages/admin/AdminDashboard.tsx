@@ -38,6 +38,8 @@ const allTranslations = {
     'nav.ordersDesc': 'View and manage orders',
     'nav.shipping': 'Shipping',
     'nav.shippingDesc': 'Configure shipping options',
+    'nav.users': 'Users',
+    'nav.usersDesc': 'Manage your customer base',
   },
   fr: {
     loading: 'Chargement de votre jardin...',
@@ -74,6 +76,8 @@ const allTranslations = {
     'nav.ordersDesc': 'Voir et gérer les commandes',
     'nav.shipping': 'Livraison',
     'nav.shippingDesc': 'Configurer les options de livraison',
+    'nav.users': 'Utilisateurs',
+    'nav.usersDesc': 'Gérez votre base de clients',
   },
   ar: {
     loading: 'جاري تحميل حديقتك...',
@@ -110,6 +114,8 @@ const allTranslations = {
     'nav.ordersDesc': 'عرض وإدارة الطلبات',
     'nav.shipping': 'الشحن',
     'nav.shippingDesc': 'تكوين خيارات الشحن',
+    'nav.users': 'المستخدمين',
+    'nav.usersDesc': 'إدارة قاعدة عملائك',
   },
 };
 
@@ -920,7 +926,7 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {[
             {
               title: t('nav.products'),
@@ -946,6 +952,14 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
               onClick: () => onNavigate('shipping'),
               delay: '0.2s',
             },
+            {
+              title: t('nav.users'),
+              icon: '👥',
+              gradient: 'from-orange-400 to-orange-600',
+              description: t('nav.usersDesc'),
+              onClick: () => onNavigate('users'),
+              delay: '0.3s',
+            },
           ].map((button, i) => (
             <button
               key={i}
@@ -967,8 +981,7 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
                 {button.description}
               </p>
             </button>
-          ))}
-        </div>
+          ))} </div>
       </div>
 
       <style>{`

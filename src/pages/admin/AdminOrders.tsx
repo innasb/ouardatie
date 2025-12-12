@@ -51,6 +51,8 @@ const translations = {
     currency: 'DZD',
     close: 'Close',
     menu: 'Menu',
+    updateSuccess: 'Order status updated successfully',
+    updateError: 'Error updating order status',
   },
   fr: {
     title: 'Commandes',
@@ -86,6 +88,8 @@ const translations = {
     currency: 'DZD',
     close: 'Fermer',
     menu: 'Menu',
+    updateSuccess: 'Statut de commande mis à jour avec succès',
+    updateError: 'Erreur lors de la mise à jour du statut',
   },
   ar: {
     title: 'الطلبات',
@@ -121,6 +125,8 @@ const translations = {
     currency: 'د.ج',
     close: 'إغلاق',
     menu: 'القائمة',
+    updateSuccess: 'تم تحديث حالة الطلب بنجاح',
+    updateError: 'خطأ في تحديث حالة الطلب',
   },
 };
 
@@ -179,21 +185,102 @@ export default function AdminOrders({ onNavigate }: AdminOrdersProps) {
     setLoading(false);
   };
 
-  const updateOrderStatus = async (orderId: string, status: string) => {
-    const { error } = await supabase
-      .from('orders')
-      .update({ status, updated_at: new Date().toISOString() })
-      .eq('id', orderId);
+  const updateOrderStatus = async (
+    orderId: string,
+    newStatus: 'pending' | 'confirmed' | 'shipped' | 'delivered' | 'canceled'
+  ) => {
+    try {
+      // Get the order details first
+      const order = orders.find((o) => o.id === orderId);
+      if (!order) {
+        alert(t('updateError'));
+        return;
+      }
 
-    if (error) {
-      alert('Error updating order status');
-      return;
-    }
+      const oldStatus = order.status;
 
-    loadOrders();
-    if (selectedOrder?.id === orderId) {
-      const updated = orders.find((o) => o.id === orderId);
-      if (updated) setSelectedOrder({ ...updated, status });
+      // Update the order status
+      const { error: orderError } = await supabase
+        .from('orders')
+        .update({ status: newStatus, updated_at: new Date().toISOString() })
+        .eq('id', orderId);
+
+      if (orderError) {
+        alert(t('updateError'));
+        console.error('Error updating order:', orderError);
+        return;
+      }
+
+      // Handle purchase tracking for user orders
+      if (order.user_id) {
+        // If order is being canceled (and wasn't canceled before), decrement purchase stats
+        if (newStatus === 'canceled' && oldStatus !== 'canceled') {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('total_purchases, total_spent')
+            .eq('id', order.user_id)
+            .single();
+
+          if (profile) {
+            await supabase
+              .from('profiles')
+              .update({
+                total_purchases: Math.max(0, (profile.total_purchases || 0) - 1),
+                total_spent: Math.max(0, (profile.total_spent || 0) - order.total_amount),
+                updated_at: new Date().toISOString(),
+              })
+              .eq('id', order.user_id);
+          }
+        }
+
+        // If order is being un-canceled (was canceled, now not), increment purchase stats back
+        if (oldStatus === 'canceled' && newStatus !== 'canceled') {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('total_purchases, total_spent')
+            .eq('id', order.user_id)
+            .single();
+
+          if (profile) {
+            await supabase
+              .from('profiles')
+              .update({
+                total_purchases: (profile.total_purchases || 0) + 1,
+                total_spent: (profile.total_spent || 0) + order.total_amount,
+                updated_at: new Date().toISOString(),
+              })
+              .eq('id', order.user_id);
+          }
+        }
+
+        // Update last_purchase_date when order is delivered
+        if (newStatus === 'delivered') {
+          await supabase
+            .from('profiles')
+            .update({
+              last_purchase_date: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+            })
+            .eq('id', order.user_id);
+        }
+      }
+
+      // Reload orders to reflect changes
+      await loadOrders();
+
+      // Update selected order if it's the one being modified
+      if (selectedOrder?.id === orderId) {
+        const updatedOrder = orders.find((o) => o.id === orderId);
+        if (updatedOrder) {
+          setSelectedOrder({ ...updatedOrder, status: newStatus });
+        }
+      }
+
+      // Show success message
+      console.log(t('updateSuccess'));
+    } catch (error) {
+      console.error('Error in updateOrderStatus:', error);
+      alert(t('updateError'));
     }
   };
 
@@ -694,7 +781,10 @@ export default function AdminOrders({ onNavigate }: AdminOrdersProps) {
                   <select
                     value={selectedOrder.status}
                     onChange={(e) =>
-                      updateOrderStatus(selectedOrder.id, e.target.value)
+                      updateOrderStatus(
+                        selectedOrder.id,
+                        e.target.value as 'pending' | 'confirmed' | 'shipped' | 'delivered' | 'canceled'
+                      )
                     }
                     className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 transition-all font-medium"
                   >

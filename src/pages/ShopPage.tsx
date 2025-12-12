@@ -93,12 +93,14 @@ interface ShopPageProps {
   onNavigate: (page: string, productId?: string) => void;
   language?: 'en' | 'fr' | 'ar';
   initialCategoryId?: string;
+  searchQuery?: string;
 }
 
 export default function ShopPage({
   onNavigate,
   language = 'en',
   initialCategoryId,
+  searchQuery: externalSearchQuery,
 }: ShopPageProps) {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -116,7 +118,12 @@ export default function ShopPage({
 
   const t = translations[language];
   const isRTL = language === 'ar';
-
+// Update local search query when external search query changes
+useEffect(() => {
+  if (externalSearchQuery) {
+    setSearchQuery(externalSearchQuery);
+  }
+}, [externalSearchQuery]);
   // Check if mobile on mount and resize
   useEffect(() => {
     const checkMobile = () => {
