@@ -3,374 +3,159 @@ import { supabase } from '../lib/supabase';
 
 const translations = {
   en: {
-    welcome: 'Welcome to',
     brand: 'OUARDATIE',
     tagline: 'Where comfort meets beauty',
-    signIn: 'Sign In',
-    signUp: 'Sign Up',
-    email: 'Email Address',
-    password: 'Password',
-    confirmPassword: 'Confirm Password',
-    fullName: 'Full Name',
-    phoneNumber: 'Phone Number',
-    wilaya: 'Wilaya',
-    commune: 'Commune',
-    forgotPassword: 'Forgot password?',
-    rememberMe: 'Remember me',
-    noAccount: "Don't have an account?",
-    haveAccount: 'Already have an account?',
-    signInButton: 'Sign In',
-    signUpButton: 'Create Account',
+    resetPassword: 'Reset Your Password',
+    newPassword: 'New Password',
+    confirmPassword: 'Confirm New Password',
+    resetButton: 'Reset Password',
     passwordMismatch: 'Passwords do not match',
-    signUpSuccess: 'Account created successfully! Please check your email to verify your account before signing in.',
-    signInSuccess: 'Welcome back!',
-    error: 'An error occurred. Please try again.',
-    fieldRequired: 'This field is required',
-    emailNotConfirmed: 'Please verify your email before signing in. Check your inbox for the confirmation link.',
-    resendConfirmation: 'Resend confirmation email',
-    confirmationResent: 'Confirmation email resent! Please check your inbox.',
-    resetPassword: 'Reset Password',
-    resetPasswordDescription: 'Enter your email address and we\'ll send you a link to reset your password.',
-    resetPasswordSent: 'Password reset link sent! Please check your email.',
+    passwordTooShort: 'Password must be at least 6 characters',
+    resetSuccess: 'Password reset successfully! Redirecting to sign in...',
+    resetError: 'Failed to reset password. Please try again or request a new reset link.',
+    invalidToken: 'Invalid or expired reset link. Please request a new one.',
     backToSignIn: 'Back to Sign In',
-    sendResetLink: 'Send Reset Link',
+    fieldRequired: 'This field is required',
   },
   fr: {
-    welcome: 'Bienvenue chez',
     brand: 'OUARDATIE',
     tagline: 'Où le confort rencontre la beauté',
-    signIn: 'Connexion',
-    signUp: 'Inscription',
-    email: 'Adresse e-mail',
-    password: 'Mot de passe',
+    resetPassword: 'Réinitialiser votre mot de passe',
+    newPassword: 'Nouveau mot de passe',
     confirmPassword: 'Confirmer le mot de passe',
-    fullName: 'Nom complet',
-    phoneNumber: 'Numéro de téléphone',
-    wilaya: 'Wilaya',
-    commune: 'Commune',
-    forgotPassword: 'Mot de passe oublié?',
-    rememberMe: 'Se souvenir de moi',
-    noAccount: "Pas de compte?",
-    haveAccount: 'Vous avez déjà un compte?',
-    signInButton: 'Se connecter',
-    signUpButton: 'Créer un compte',
+    resetButton: 'Réinitialiser',
     passwordMismatch: 'Les mots de passe ne correspondent pas',
-    signUpSuccess: 'Compte créé avec succès! Veuillez vérifier votre email pour activer votre compte avant de vous connecter.',
-    signInSuccess: 'Bon retour!',
-    error: 'Une erreur est survenue. Réessayez.',
-    fieldRequired: 'Ce champ est obligatoire',
-    emailNotConfirmed: 'Veuillez vérifier votre email avant de vous connecter. Consultez votre boîte de réception.',
-    resendConfirmation: 'Renvoyer l\'email de confirmation',
-    confirmationResent: 'Email de confirmation renvoyé! Consultez votre boîte de réception.',
-    resetPassword: 'Réinitialiser le mot de passe',
-    resetPasswordDescription: 'Entrez votre adresse e-mail et nous vous enverrons un lien pour réinitialiser votre mot de passe.',
-    resetPasswordSent: 'Lien de réinitialisation envoyé! Consultez votre boîte de réception.',
+    passwordTooShort: 'Le mot de passe doit contenir au moins 6 caractères',
+    resetSuccess: 'Mot de passe réinitialisé avec succès! Redirection...',
+    resetError: 'Échec de la réinitialisation. Veuillez réessayer ou demander un nouveau lien.',
+    invalidToken: 'Lien invalide ou expiré. Veuillez en demander un nouveau.',
     backToSignIn: 'Retour à la connexion',
-    sendResetLink: 'Envoyer le lien',
+    fieldRequired: 'Ce champ est obligatoire',
   },
   ar: {
-    welcome: 'مرحباً بك في',
     brand: 'ورداتي',
     tagline: 'حيث تلتقي الراحة بالجمال',
-    signIn: 'تسجيل الدخول',
-    signUp: 'إنشاء حساب',
-    email: 'البريد الإلكتروني',
-    password: 'كلمة المرور',
-    confirmPassword: 'تأكيد كلمة المرور',
-    fullName: 'الاسم الكامل',
-    phoneNumber: 'رقم الهاتف',
-    wilaya: 'الولاية',
-    commune: 'البلدية',
-    forgotPassword: 'نسيت كلمة المرور؟',
-    rememberMe: 'تذكرني',
-    noAccount: "ليس لديك حساب؟",
-    haveAccount: 'لديك حساب بالفعل؟',
-    signInButton: 'تسجيل الدخول',
-    signUpButton: 'إنشاء حساب',
-    passwordMismatch: 'كلمات المرور غير متطابقة',
-    signUpSuccess: 'تم إنشاء الحساب بنجاح! يرجى التحقق من بريدك الإلكتروني لتفعيل حسابك قبل تسجيل الدخول.',
-    signInSuccess: 'مرحباً بعودتك!',
-    error: 'حدث خطأ. يرجى المحاولة مرة أخرى.',
-    fieldRequired: 'هذا الحقل مطلوب',
-    emailNotConfirmed: 'يرجى التحقق من بريدك الإلكتروني قبل تسجيل الدخول. تحقق من صندوق الوارد الخاص بك.',
-    resendConfirmation: 'إعادة إرسال بريد التأكيد',
-    confirmationResent: 'تم إعادة إرسال بريد التأكيد! تحقق من صندوق الوارد الخاص بك.',
     resetPassword: 'إعادة تعيين كلمة المرور',
-    resetPasswordDescription: 'أدخل عنوان بريدك الإلكتروني وسنرسل لك رابطاً لإعادة تعيين كلمة المرور.',
-    resetPasswordSent: 'تم إرسال رابط إعادة التعيين! تحقق من بريدك الإلكتروني.',
+    newPassword: 'كلمة المرور الجديدة',
+    confirmPassword: 'تأكيد كلمة المرور',
+    resetButton: 'إعادة التعيين',
+    passwordMismatch: 'كلمات المرور غير متطابقة',
+    passwordTooShort: 'يجب أن تكون كلمة المرور 6 أحرف على الأقل',
+    resetSuccess: 'تم إعادة تعيين كلمة المرور بنجاح! جاري التحويل...',
+    resetError: 'فشل إعادة التعيين. يرجى المحاولة مرة أخرى أو طلب رابط جديد.',
+    invalidToken: 'رابط غير صالح أو منتهي الصلاحية. يرجى طلب رابط جديد.',
     backToSignIn: 'العودة إلى تسجيل الدخول',
-    sendResetLink: 'إرسال الرابط',
+    fieldRequired: 'هذا الحقل مطلوب',
   },
 };
 
 type Language = 'en' | 'fr' | 'ar';
 
-interface AuthPageProps {
+interface ResetPasswordPageProps {
   onNavigate?: (page: string) => void;
   language?: Language;
 }
 
-export default function AuthPage({ onNavigate, language: propLanguage = 'en' }: AuthPageProps = {}) {
-  const [isSignUp, setIsSignUp] = useState(false);
+export default function ResetPasswordPage({ onNavigate, language: propLanguage = 'en' }: ResetPasswordPageProps = {}) {
   const [language, setLanguage] = useState<Language>(propLanguage || 'en');
-  const [wilayas, setWilayas] = useState<Array<{ id: string; wilaya: string }>>([]);
-  const [allCommunes, setAllCommunes] = useState<Array<{ id: string; commune_name: string; wilaya: string }>>([]);
-  const [filteredCommunes, setFilteredCommunes] = useState<Array<{ id: string; commune_name: string; wilaya: string }>>([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error' | 'info'; text: string } | null>(null);
-  const [showResendConfirmation, setShowResendConfirmation] = useState(false);
-  const [showResetPassword, setShowResetPassword] = useState(false);
+  const [isValidToken, setIsValidToken] = useState(true);
   const [formData, setFormData] = useState({
-    email: '',
     password: '',
     confirmPassword: '',
-    fullName: '',
-    phoneNumber: '',
-    wilaya: '',
-    commune: '',
-    rememberMe: false,
   });
 
   const t = translations[language];
   const isRTL = language === 'ar';
 
-  // Load wilayas and communes from Supabase
   useEffect(() => {
-    loadWilayas();
-    loadCommunes();
-  }, []);
+    // Check if we have a valid session (user clicked the reset link)
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        setIsValidToken(false);
+        setMessage({ type: 'error', text: t.invalidToken });
+      }
+    };
 
-  // Filter communes when wilaya changes
-  useEffect(() => {
-    if (formData.wilaya) {
-      const communesForWilaya = allCommunes.filter(
-        commune => commune.wilaya === formData.wilaya
-      );
-      setFilteredCommunes(communesForWilaya);
-    } else {
-      setFilteredCommunes([]);
-    }
-  }, [formData.wilaya, allCommunes]);
+    checkSession();
+  }, [t.invalidToken]);
 
-  const loadWilayas = async () => {
-    const { data } = await supabase
-      .from('shipping_options')
-      .select('*')
-      .order('wilaya');
-    
-    if (data) {
-      setWilayas(data);
-    }
-  };
-
-  const loadCommunes = async () => {
-    const { data } = await supabase
-      .from('communes')
-      .select('*')
-      .order('commune_name');
-    
-    if (data) {
-      setAllCommunes(data);
-    }
-  };
-
-  const handleResetPassword = async () => {
-    if (!formData.email) {
-      setMessage({ type: 'error', text: t.fieldRequired });
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const { error } = await supabase.auth.resetPasswordForEmail(formData.email, {
-        redirectTo: `${window.location.origin}/reset-password`,
-      });
-
-      if (error) throw error;
-
-      setMessage({ type: 'success', text: t.resetPasswordSent });
-      setTimeout(() => {
-        setShowResetPassword(false);
-        setMessage(null);
-      }, 3000);
-    } catch (error: any) {
-      setMessage({ type: 'error', text: error.message || t.error });
-    } finally {
-      setLoading(false);
-    }
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
   const handleSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     setMessage(null);
-    setLoading(true);
 
-    try {
-      if (isSignUp) {
-        // Validate sign up form
-        if (!formData.fullName || !formData.email || !formData.password || 
-            !formData.phoneNumber || !formData.wilaya || !formData.commune) {
-          setMessage({ type: 'error', text: t.fieldRequired });
-          setLoading(false);
-          return;
-        }
-
-        if (formData.password !== formData.confirmPassword) {
-          setMessage({ type: 'error', text: t.passwordMismatch });
-          setLoading(false);
-          return;
-        }
-
-        // Sign up user with all metadata
-        const { data: authData, error: authError } = await supabase.auth.signUp({
-          email: formData.email,
-          password: formData.password,
-          options: {
-            emailRedirectTo: `${window.location.origin}/auth`,
-            data: {
-              full_name: formData.fullName,
-              phone_number: formData.phoneNumber,
-              wilaya: formData.wilaya,
-              commune: formData.commune,
-            },
-          },
-        });
-
-        if (authError) throw authError;
-
-        if (authData.user) {
-          // Create profile directly - this is more reliable than waiting for trigger
-          try {
-            const { error: profileError } = await supabase
-              .from('profiles')
-              .insert({
-                id: authData.user.id,
-                full_name: formData.fullName,
-                phone_number: formData.phoneNumber,
-                wilaya: formData.wilaya,
-                commune: formData.commune,
-                is_admin: false,
-              });
-
-            // If insert fails due to unique constraint (trigger already created it), try update
-            if (profileError && profileError.code === '23505') {
-              await supabase
-                .from('profiles')
-                .update({
-                  full_name: formData.fullName,
-                  phone_number: formData.phoneNumber,
-                  wilaya: formData.wilaya,
-                  commune: formData.commune,
-                  updated_at: new Date().toISOString(),
-                })
-                .eq('id', authData.user.id);
-            } else if (profileError) {
-              console.error('Profile creation error:', profileError);
-            }
-          } catch (profileErr) {
-            console.error('Profile creation exception:', profileErr);
-          }
-          
-          setMessage({ type: 'success', text: t.signUpSuccess });
-          
-          // Switch to sign in mode
-          setTimeout(() => {
-            setIsSignUp(false);
-            setFormData(prev => ({
-              ...prev,
-              password: '',
-              confirmPassword: '',
-              fullName: '',
-              phoneNumber: '',
-              wilaya: '',
-              commune: '',
-            }));
-          }, 3000);
-        }
-      } else {
-        // Sign in user
-        if (!formData.email || !formData.password) {
-          setMessage({ type: 'error', text: t.fieldRequired });
-          setLoading(false);
-          return;
-        }
-
-        const { error } = await supabase.auth.signInWithPassword({
-          email: formData.email,
-          password: formData.password,
-        });
-
-        if (error) {
-          // Check if error is email not confirmed
-          if (error.message.includes('Email not confirmed') || error.message.includes('email_not_confirmed')) {
-            setMessage({ type: 'info', text: t.emailNotConfirmed });
-            setShowResendConfirmation(true);
-            setLoading(false);
-            return;
-          }
-          throw error;
-        }
-
-        setMessage({ type: 'success', text: t.signInSuccess });
-        
-        // Redirect to home after successful login
-        setTimeout(() => {
-          if (onNavigate) onNavigate('home');
-        }, 1000);
-      }
-    } catch (error: any) {
-      setMessage({ type: 'error', text: error.message || t.error });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value, type } = e.target;
-    const checked = (e.target as HTMLInputElement).checked;
-    
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value,
-      // Reset commune when wilaya changes
-      ...(name === 'wilaya' ? { commune: '' } : {})
-    }));
-  };
-
-  const handleResendConfirmation = async () => {
-    if (!formData.email) {
+    // Validation
+    if (!formData.password || !formData.confirmPassword) {
       setMessage({ type: 'error', text: t.fieldRequired });
       return;
     }
 
+    if (formData.password.length < 6) {
+      setMessage({ type: 'error', text: t.passwordTooShort });
+      return;
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      setMessage({ type: 'error', text: t.passwordMismatch });
+      return;
+    }
+
     setLoading(true);
+
     try {
-      const { error } = await supabase.auth.resend({
-        type: 'signup',
-        email: formData.email,
+      const { error } = await supabase.auth.updateUser({
+        password: formData.password,
       });
 
       if (error) throw error;
 
-      setMessage({ type: 'success', text: t.confirmationResent });
-      setShowResendConfirmation(false);
+      setMessage({ type: 'success', text: t.resetSuccess });
+
+      // Redirect to auth page after 2 seconds
+      setTimeout(() => {
+        if (onNavigate) {
+          onNavigate('auth');
+        } else {
+          window.location.href = '/auth';
+        }
+      }, 2000);
     } catch (error: any) {
-      setMessage({ type: 'error', text: error.message || t.error });
+      console.error('Reset password error:', error);
+      setMessage({ type: 'error', text: error.message || t.resetError });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleBackToSignIn = () => {
+    if (onNavigate) {
+      onNavigate('auth');
+    } else {
+      window.location.href = '/auth';
     }
   };
 
   return (
     <div className="min-h-screen bg-[#FAF9F7] flex" dir={isRTL ? 'rtl' : 'ltr'}>
       {/* Left Side - Logo */}
-<div className="hidden lg:flex lg:w-1/2 bg-[#E3DECB] relative overflow-hidden items-center justify-center">
+      <div className="hidden lg:flex lg:w-1/2 bg-[#E3DECB] relative overflow-hidden items-center justify-center">
         <img 
           src="/logo_ouarda1.jpg" 
           alt="OUARDATIE Logo" 
           className="w-full h-full object-cover"
         />
       </div>
+
       {/* Right Side - Form */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12">
         <div className="w-full max-w-md">
@@ -409,183 +194,22 @@ export default function AuthPage({ onNavigate, language: propLanguage = 'en' }: 
                 : 'bg-red-50 text-red-700 border border-red-200'
             }`}>
               <p>{message.text}</p>
-              {showResendConfirmation && (
-                <button
-                  onClick={handleResendConfirmation}
-                  disabled={loading}
-                  className="mt-3 text-sm underline hover:no-underline disabled:opacity-50"
-                >
-                  {t.resendConfirmation}
-                </button>
-              )}
             </div>
           )}
 
-          {/* Reset Password View */}
-          {showResetPassword ? (
+          {isValidToken ? (
             <div className="space-y-6">
-              <div className="text-center">
+              <div className="text-center mb-8">
                 <h2 className="text-2xl font-light text-[#5C4A3A] mb-2">
                   {t.resetPassword}
                 </h2>
-                <p className="text-sm text-gray-600 font-light">
-                  {t.resetPasswordDescription}
-                </p>
-              </div>
-
-              <div>
-                <label className="block text-sm font-light text-gray-700 mb-2">
-                  {t.email}
-                </label>
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg focus:outline-none focus:border-[#8B7355] transition-colors text-gray-800"
-                  required
-                />
-              </div>
-
-              <button
-                onClick={handleResetPassword}
-                disabled={loading}
-                className="w-full py-4 bg-[#5C4A3A] text-white rounded-full text-sm font-light tracking-widest uppercase hover:bg-[#8B7355] transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
-              >
-                {loading ? (isRTL ? 'جاري التحميل...' : language === 'fr' ? 'Chargement...' : 'Loading...') : t.sendResetLink}
-              </button>
-
-              <button
-                onClick={() => {
-                  setShowResetPassword(false);
-                  setMessage(null);
-                }}
-                className="w-full text-center text-sm text-[#8B7355] hover:text-[#5C4A3A] font-light transition-colors"
-              >
-                {t.backToSignIn}
-              </button>
-            </div>
-          ) : (
-            <>
-              {/* Tab Switcher */}
-              <div className="flex bg-white rounded-full p-1 mb-8 shadow-sm">
-                <button
-                  onClick={() => setIsSignUp(false)}
-                  className={`flex-1 py-3 rounded-full text-sm font-light tracking-wide transition-all ${
-                    !isSignUp
-                      ? 'bg-[#5C4A3A] text-white'
-                      : 'text-gray-600 hover:text-[#5C4A3A]'
-                  }`}
-                >
-                  {t.signIn}
-                </button>
-                <button
-                  onClick={() => setIsSignUp(true)}
-                  className={`flex-1 py-3 rounded-full text-sm font-light tracking-wide transition-all ${
-                    isSignUp
-                      ? 'bg-[#5C4A3A] text-white'
-                      : 'text-gray-600 hover:text-[#5C4A3A]'
-                  }`}
-                >
-                  {t.signUp}
-                </button>
               </div>
 
               {/* Form Fields */}
               <div className="space-y-5">
-                {isSignUp && (
-                  <>
-                    <div>
-                      <label className="block text-sm font-light text-gray-700 mb-2">
-                        {t.fullName}
-                      </label>
-                      <input
-                        type="text"
-                        name="fullName"
-                        value={formData.fullName}
-                        onChange={handleChange}
-                        className="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg focus:outline-none focus:border-[#8B7355] transition-colors text-gray-800"
-                        required
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-light text-gray-700 mb-2">
-                        {t.phoneNumber}
-                      </label>
-                      <input
-                        type="tel"
-                        name="phoneNumber"
-                        value={formData.phoneNumber}
-                        onChange={handleChange}
-                        placeholder="0555 00 00 00"
-                        className="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg focus:outline-none focus:border-[#8B7355] transition-colors text-gray-800"
-                        required
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-light text-gray-700 mb-2">
-                          {t.wilaya}
-                        </label>
-                        <select
-                          name="wilaya"
-                          value={formData.wilaya}
-                          onChange={handleChange}
-                          className="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg focus:outline-none focus:border-[#8B7355] transition-colors text-gray-800"
-                          required
-                        >
-                          <option value="">{isRTL ? 'اختر الولاية' : language === 'fr' ? 'Sélectionnez' : 'Select'}</option>
-                          {wilayas.map((wilaya) => (
-                            <option key={wilaya.id} value={wilaya.wilaya}>
-                              {wilaya.wilaya}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-light text-gray-700 mb-2">
-                          {t.commune}
-                        </label>
-                        <select
-                          name="commune"
-                          value={formData.commune}
-                          onChange={handleChange}
-                          disabled={!formData.wilaya}
-                          className="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg focus:outline-none focus:border-[#8B7355] transition-colors text-gray-800 disabled:bg-gray-50 disabled:cursor-not-allowed"
-                          required
-                        >
-                          <option value="">{isRTL ? 'اختر البلدية' : language === 'fr' ? 'Sélectionnez' : 'Select'}</option>
-                          {filteredCommunes.map((commune) => (
-                            <option key={commune.id} value={commune.commune_name}>
-                              {commune.commune_name}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                    </div>
-                  </>
-                )}
-
                 <div>
                   <label className="block text-sm font-light text-gray-700 mb-2">
-                    {t.email}
-                  </label>
-                  <input
-                    type="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    className="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg focus:outline-none focus:border-[#8B7355] transition-colors text-gray-800"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-light text-gray-700 mb-2">
-                    {t.password}
+                    {t.newPassword}
                   </label>
                   <input
                     type="password"
@@ -594,70 +218,60 @@ export default function AuthPage({ onNavigate, language: propLanguage = 'en' }: 
                     onChange={handleChange}
                     className="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg focus:outline-none focus:border-[#8B7355] transition-colors text-gray-800"
                     required
+                    minLength={6}
                   />
                 </div>
 
-                {isSignUp && (
-                  <div>
-                    <label className="block text-sm font-light text-gray-700 mb-2">
-                      {t.confirmPassword}
-                    </label>
-                    <input
-                      type="password"
-                      name="confirmPassword"
-                      value={formData.confirmPassword}
-                      onChange={handleChange}
-                      className="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg focus:outline-none focus:border-[#8B7355] transition-colors text-gray-800"
-                      required
-                    />
-                  </div>
-                )}
-
-                {!isSignUp && (
-                  <div className={`flex items-center justify-between ${isRTL ? 'flex-row-reverse' : ''}`}>
-                    <label className={`flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
-                      <input
-                        type="checkbox"
-                        name="rememberMe"
-                        checked={formData.rememberMe}
-                        onChange={handleChange}
-                        className="w-4 h-4 text-[#8B7355] border-gray-300 rounded focus:ring-[#8B7355]"
-                      />
-                      <span className="text-sm text-gray-600 font-light">
-                        {t.rememberMe}
-                      </span>
-                    </label>
-                    <button
-                      type="button"
-                      onClick={() => setShowResetPassword(true)}
-                      className="text-sm text-[#8B7355] hover:text-[#5C4A3A] font-light transition-colors"
-                    >
-                      {t.forgotPassword}
-                    </button>
-                  </div>
-                )}
+                <div>
+                  <label className="block text-sm font-light text-gray-700 mb-2">
+                    {t.confirmPassword}
+                  </label>
+                  <input
+                    type="password"
+                    name="confirmPassword"
+                    value={formData.confirmPassword}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg focus:outline-none focus:border-[#8B7355] transition-colors text-gray-800"
+                    required
+                    minLength={6}
+                  />
+                </div>
 
                 <button
                   onClick={handleSubmit}
                   disabled={loading}
                   className="w-full py-4 bg-[#5C4A3A] text-white rounded-full text-sm font-light tracking-widest uppercase hover:bg-[#8B7355] transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                 >
-                  {loading ? (isRTL ? 'جاري التحميل...' : language === 'fr' ? 'Chargement...' : 'Loading...') : (isSignUp ? t.signUpButton : t.signInButton)}
+                  {loading ? (
+                    isRTL ? 'جاري التحميل...' : language === 'fr' ? 'Chargement...' : 'Loading...'
+                  ) : (
+                    t.resetButton
+                  )}
                 </button>
               </div>
+            </div>
+          ) : (
+            <div className="text-center">
+              <button
+                onClick={handleBackToSignIn}
+                className="text-[#8B7355] hover:text-[#5C4A3A] font-light transition-colors"
+              >
+                {t.backToSignIn}
+              </button>
+            </div>
+          )}
 
-              {/* Toggle Link */}
-              <p className="text-center mt-8 text-sm text-gray-600 font-light">
-                {isSignUp ? t.haveAccount : t.noAccount}{' '}
-                <button
-                  type="button"
-                  onClick={() => setIsSignUp(!isSignUp)}
-                  className="text-[#8B7355] hover:text-[#5C4A3A] font-normal transition-colors"
-                >
-                  {isSignUp ? t.signIn : t.signUp}
-                </button>
-              </p>
-            </>
+          {/* Back to Sign In Link */}
+          {isValidToken && (
+            <p className="text-center mt-8">
+              <button
+                type="button"
+                onClick={handleBackToSignIn}
+                className="text-sm text-[#8B7355] hover:text-[#5C4A3A] font-light transition-colors"
+              >
+                {t.backToSignIn}
+              </button>
+            </p>
           )}
         </div>
       </div>
