@@ -226,7 +226,7 @@ export default function AuthPage({ onNavigate, language: propLanguage = 'en' }: 
           email: formData.email,
           password: formData.password,
           options: {
-            emailRedirectTo: `${window.location.origin}/home`,
+            emailRedirectTo: `${window.location.origin}/auth`,
             data: {
               full_name: formData.fullName,
               phone_number: formData.phoneNumber,
@@ -364,14 +364,13 @@ export default function AuthPage({ onNavigate, language: propLanguage = 'en' }: 
   return (
     <div className="min-h-screen bg-[#FAF9F7] flex" dir={isRTL ? 'rtl' : 'ltr'}>
       {/* Left Side - Logo */}
-      <div className="hidden lg:flex lg:w-1/2 bg-[#E3DECB] relative overflow-hidden items-center justify-center">
+<div className="hidden lg:flex lg:w-1/2 bg-[#E3DECB] relative overflow-hidden items-center justify-center">
         <img 
           src="/logo_ouarda1.jpg" 
           alt="OUARDATIE Logo" 
-          className="max-w-md max-h-[80vh] object-contain"
+          className="w-full h-full object-cover"
         />
       </div>
-
       {/* Right Side - Form */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12">
         <div className="w-full max-w-md">

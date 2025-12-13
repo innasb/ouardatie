@@ -9,6 +9,7 @@ import CartPage from './pages/CartPage';
 import CheckoutPage from './pages/CheckoutPage';
 import AboutPage from './pages/AboutPage';
 import AuthPage from './pages/authPage';
+import ResetPasswordPage from './pages/forgotpassword';
 import AdminLoginPage from './pages/admin/AdminLoginPage';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminProducts from './pages/admin/AdminProducts';
@@ -47,6 +48,7 @@ function AppContent() {
   const { route, navigate } = useRouter();
   const [language, setLanguage] = useState<'en' | 'fr' | 'ar'>('en');
   const [searchQuery, setSearchQuery] = useState('');
+  
   // Parse the route
   const pathSegments = route.split('/').filter(Boolean);
   const page = pathSegments[0] || 'home';
@@ -108,10 +110,20 @@ function AppContent() {
     return <AdminDashboard onNavigate={(section: string) => navigate(`/admin/${section}`)} />;
   }
 
-  // Auth route (without navbar)
+  // Auth routes (without navbar)
   if (page === 'auth') {
     return (
       <AuthPage 
+        onNavigate={handleNavigate}
+        language={language}
+      />
+    );
+  }
+
+  // Reset Password route (without navbar)
+  if (page === 'reset-password') {
+    return (
+      <ResetPasswordPage 
         onNavigate={handleNavigate}
         language={language}
       />
