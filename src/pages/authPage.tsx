@@ -628,13 +628,13 @@ export default function AuthPage({ onNavigate, language: propLanguage = 'en' }: 
                         {t.rememberMe}
                       </span>
                     </label>
-                    <button
+                    {/* <button
                       type="button"
                       onClick={() => setShowResetPassword(true)}
                       className="text-sm text-[#8B7355] hover:text-[#5C4A3A] font-light transition-colors"
                     >
                       {t.forgotPassword}
-                    </button>
+                    </button> */}
                   </div>
                 )}
 

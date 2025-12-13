@@ -152,7 +152,7 @@ export default function ResetPasswordPage({ onNavigate, language: propLanguage =
         <img 
           src="/logo_ouarda1.jpg" 
           alt="OUARDATIE Logo" 
-          className="w-full h-full object-cover"
+          className="max-w-md max-h-[80vh] object-contain"
         />
       </div>
 
